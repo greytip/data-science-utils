@@ -387,7 +387,7 @@ def sb_jointplot(series1, series2):
     # Show the joint distribution using kernel density estimation
     return sns.jointplot(series1, series2, kind="kde", size=7, space=0)
 
-def roc_plot(classifier, dataframe, target, scores):
+def roc_plot(classifier, dataframe, target):
     import matplotlib.pyplot as plt
     from sklearn.cross_validation import StratifiedKFold
 
@@ -424,4 +424,5 @@ def roc_plot(classifier, dataframe, target, scores):
     plt.ylabel('True Positive Rate')
     plt.title('Receiver operating characteristic example')
     plt.legend(loc="lower right")
+    plt.show()
     pass
