@@ -1,0 +1,6 @@
+scipy
+bokeh
+seaborn
+pandas
+scikits-learn
+statsmodels
