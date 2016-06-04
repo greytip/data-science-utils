@@ -22,14 +22,15 @@ def predictVotingClassify(model, dataframe):
                                 #in (clf1, clf2, clf3, eclf)]
 
 
-def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
+def train(dataframe, target, column=None, modelType='knn', cross_val=False):
     # Try discretizing(aka binning) the  headcount and invoice amount fields before training the
     # model
+
     if modelType =='knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
         knn = KNeighborsClassifier(n_neighbors=6)
-        if dummyTrain:
+        if cross_val:
             return knn
         knn.fit(dataframe, target)
         return knn
@@ -37,7 +38,7 @@ def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
     elif modelType=='gaussianNB':
         from sklearn.naive_bayes import GaussianNB
         gnb = GaussianNB()
-        if dummyTrain:
+        if cross_val:
             return gnb
         gnb.fit(dataframe, target)
         return gnb
@@ -46,7 +47,7 @@ def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
         from sklearn.naive_bayes import MultinomialNB
         # TODO: figure out how to configure binomial distribution
         mnb = MultinomialNB()
-        if dummyTrain:
+        if cross_val:
             return mnb
         mnb.fit(dataframe, target)
         return mnb
@@ -54,7 +55,7 @@ def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
     elif modelType=='bernoulliNB':
         from sklearn.naive_bayes import BernoulliNB
         bnb = BernoulliNB()
-        if dummyTrain:
+        if cross_val:
             return bnb
         bnb.fit(dataframe, target)
         return bnb
@@ -62,7 +63,7 @@ def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
     elif modelType=='randomForest':
         from sklearn.ensemble import RandomForestClassifier
         rfc = RandomForestClassifier(random_state=234)
-        if dummyTrain:
+        if cross_val:
             return rfc
         rfc.fit(dataframe, target)
         return rfc
@@ -76,7 +77,7 @@ def train(dataframe, target, column=None, modelType='knn', dummyTrain=False):
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression()
-        if dummyTrain:
+        if cross_val:
             return l_reg
         l_reg.fit(dataframe[column], target)
         return l_reg

@@ -386,3 +386,42 @@ def sb_jointplot(series1, series2):
 
     # Show the joint distribution using kernel density estimation
     return sns.jointplot(series1, series2, kind="kde", size=7, space=0)
+
+def roc_plot(classifier, dataframe, target, scores):
+    import matplotlib.pyplot as plt
+    from sklearn.cross_validation import StratifiedKFold
+
+    # Not sure what this means some sort of initialization but are these right numbers?
+    mean_tpr = 0.0
+    mean_fpr = np.linspace(0, 1, 100)
+    all_tpr = []
+
+    cv = StratifiedKFold(target, n_folds=6)
+    for i, (train, test) in enumerate(cv):
+        probas_ = classifier.fit(dataframe[train], target[train]).predict_proba(dataframe[test])
+        # Compute ROC curve and area the curve
+        fpr, tpr, thresholds = roc_curve(target[test], probas_[:, 1])
+        mean_tpr += interp(mean_fpr, fpr, tpr)
+        mean_tpr[0] = 0.0
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
+    #if cross_val:
+    #    from sklearn.cross_validation import StratifiedKFold
+    #    cv = StratifiedKFold(target, n_folds=6)
+    #from sklearn.metrics import roc_curve
+    #fpr, tpr, thresholds = roc_curve(target, scores, pos_label=2)
+    plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')
+
+    mean_tpr /= len(cv)
+    mean_tpr[-1] = 1.0
+    mean_auc = auc(mean_fpr, mean_tpr)
+    plt.plot(mean_fpr, mean_tpr, 'k--',
+             label='Mean ROC (area = %0.2f)' % mean_auc, lw=2)
+
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic example')
+    plt.legend(loc="lower right")
+    pass
