@@ -1,4 +1,4 @@
-from bokeh.charts import HeatMap, Bar, BoxPlot, Histogram, Scatter, Line, Bar
+#
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
@@ -253,19 +253,24 @@ def c3plot_from_query(conn, query, condition=0):
 
     plot_data['y'] = y
     return cities, plot_data['y']
+
 def histogram(histDF,values, **kwargs):
+    from bokeh.charts import Histogram
     return Histogram(histDF[values], **kwargs)
 
 def barplot(barDF, xlabel, ylabel, title="Bar Plot",
                             agg='sum', **kwargs):
+    from bokeh.charts import Bar
     barplot = Bar(barDF, xlabel, values=ylabel, agg=agg, title=title, **kwargs)
     return barplot
 
 def boxplot(boxDF, values_label, xlabel, title="boxplot", **kwargs):
+    from bokeh.charts import BoxPlot
     boxplot = BoxPlot(boxDF, values=values_label, label=xlabel, color=xlabel, title=title, **kwargs)
     return boxplot
 
 def heatmap(heatMapDF,xlabel, ylabel, value_label,title="heatmap", palette=None, **kwargs):
+    from bokeh.charts import HeatMap
     if not palette:
         from bokeh.palettes import RdBu11 as palette_tmpl
         palette = palette_tmpl
@@ -274,6 +279,7 @@ def heatmap(heatMapDF,xlabel, ylabel, value_label,title="heatmap", palette=None,
     return hm
 
 def scatterplot(scatterDF, xcol, ycol, xlabel, ylabel, group=None, **kwargs):
+    from bokeh.charts import Scatter
     if not group:
         scatter = Scatter(scatterDF, x=xcol, y=ycol, xlabel=xlabel, ylabel=ylabel, **kwargs)
     else:
