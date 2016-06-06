@@ -388,6 +388,7 @@ def sb_jointplot(series1, series2):
     return sns.jointplot(series1, series2, kind="kde", size=7, space=0)
 
 def roc_plot(classifier, dataframe, target):
+    import numpy as np
     import matplotlib.pyplot as plt
     from sklearn.cross_validation import StratifiedKFold
 

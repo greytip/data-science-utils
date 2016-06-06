@@ -102,7 +102,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
 def featureSelect(dataframe):
     from sklearn.feature_selection import VarianceThreshold
     sel = VarianceThreshold(threshold=(.8 * (1 - .8)))
-    return sel.fit_transform(X)
+    return sel.fit_transform(dataframe)
 
 if __name__ == '__main__':
     pass
