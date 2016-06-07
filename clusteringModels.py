@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 
 #def cluster_analyze():
 
-def cluster_analyze(dataframe, target, column=None, modelType='knn', cross_val=False):
+def cluster_analyze(dataframe, target):
 
     colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
     colors = np.hstack([colors] * 20)
