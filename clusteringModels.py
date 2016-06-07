@@ -5,20 +5,20 @@ from sklearn.preprocessing import StandardScaler
 
 def cluster_analyze(dataframe, target, column=None, modelType='knn', cross_val=False):
 
-	colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
-	colors = np.hstack([colors] * 20)
+    colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
+    colors = np.hstack([colors] * 20)
 
     plt.figure(figsize=(len(clustering_names) * 2 + 3, 9.5))
-	plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,
+    plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,
                     hspace=.01)
 
-	plot_num = 1
-	clustering_names = [
+    plot_num = 1
+    clustering_names = [
     'MiniBatchKMeans', 'AffinityPropagation', 'MeanShift',
     'SpectralClustering', 'Ward', 'AgglomerativeClustering',
     'DBSCAN', 'Birch']
 
-	X, y = dataframe, target
+    X, y = dataframe, target
     # normalize dataset for easier parameter selection
     X = StandardScaler().fit_transform(dataframe)
 
@@ -52,7 +52,7 @@ def cluster_analyze(dataframe, target, column=None, modelType='knn', cross_val=F
         two_means, affinity_propagation, ms, spectral, ward, average_linkage,
         dbscan, birch]
 
-	for name, algorithm in zip(clustering_names, clustering_algorithms):
+    for name, algorithm in zip(clustering_names, clustering_algorithms):
         # predict cluster memberships
         t0 = time.time()
         algorithm.fit(X)
@@ -80,5 +80,5 @@ def cluster_analyze(dataframe, target, column=None, modelType='knn', cross_val=F
                  transform=plt.gca().transAxes, size=15,
                  horizontalalignment='right')
         plot_num += 1
-	plt.show()
-	return plt
+    plt.show()
+    return plt
