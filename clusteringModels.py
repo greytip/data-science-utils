@@ -1,6 +1,6 @@
 from sklearn import cluster
 from sklearn.preprocessing import StandardScaler
-
+import numpy as np
 #def cluster_analyze():
 
 def cluster_analyze(dataframe, target):
