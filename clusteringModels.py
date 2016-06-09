@@ -13,7 +13,7 @@ def cluster_analyze(dataframe, target):
     colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
     colors = np.hstack([colors] * 20)
 
-    plt.figure(figsize=(len(clustering_names) * 2 + 3, 9.5))
+    plt.figure(figsize=(len(clustering_names) * 2 + 36, 15))
     plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,
                     hspace=.01)
 
