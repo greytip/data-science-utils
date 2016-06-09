@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 
 def cluster_analyze(dataframe, target):
 
+    clustering_names = [
+    'MiniBatchKMeans', 'AffinityPropagation', 'MeanShift',
+    'SpectralClustering', 'Ward', 'AgglomerativeClustering',
+    'DBSCAN', 'Birch']
     colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
     colors = np.hstack([colors] * 20)
 
@@ -14,10 +18,6 @@ def cluster_analyze(dataframe, target):
                     hspace=.01)
 
     plot_num = 1
-    clustering_names = [
-    'MiniBatchKMeans', 'AffinityPropagation', 'MeanShift',
-    'SpectralClustering', 'Ward', 'AgglomerativeClustering',
-    'DBSCAN', 'Birch']
 
     X, y = dataframe, target
     # normalize dataset for easier parameter selection
