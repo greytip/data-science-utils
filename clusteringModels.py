@@ -3,8 +3,7 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
-#def cluster_analyze():
-
+import time
 def cluster_analyze(dataframe, target):
 
     clustering_names = [
@@ -66,8 +65,7 @@ def cluster_analyze(dataframe, target):
 
         # plot
         plt.subplot(4, len(clustering_algorithms), plot_num)
-        if i_dataset == 0:
-            plt.title(name, size=18)
+        plt.title(name, size=18)
         plt.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), s=10)
 
         if hasattr(algorithm, 'cluster_centers_'):
