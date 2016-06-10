@@ -1,11 +1,16 @@
 
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+def normalize(dataframe, norm_type='StandardScalar'):
+    return StandardScaler().fit_transform(dataframe)
+
+
 def dump_model(model, filename):
     assert model, "Model required"
     assert filename, "Filename Required"
     from sklearn.externals import joblib
     joblib.dump(model, filename+ '.pkl')
 
-from sklearn.preprocessing import LabelEncoder
 class MultiColumnLabelEncoder:
     def __init__(self,columns = None):
         self.encoders = defaultdict(LabelEncoder)

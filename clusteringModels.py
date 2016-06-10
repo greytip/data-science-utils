@@ -4,7 +4,22 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-def cluster_analyze(dataframe, target):
+
+# Custom utils
+from sklearnUtils import normalize
+
+def is_cluster(dataframe, model_type='dbscan', batch_size=2):
+    if model_type == 'dbscan':
+        model_obj = cluster.DBSCAN(eps=.2)
+    elif model_type == 'MiniBatchKMeans':
+        assert batch_size, "Batch size mandatory"
+        model_obj = cluster.MiniBatchKMeans(n_clusters=batch_size)
+    else:
+        pass
+    model_obj.fit(X)
+    return model_obj.cluster_centers_
+
+def cluster_analyze(dataframe):
 
     clustering_names = [
     'MiniBatchKMeans', 'AffinityPropagation', 'MeanShift',
@@ -21,7 +36,7 @@ def cluster_analyze(dataframe, target):
 
     X, y = dataframe, target
     # normalize dataset for easier parameter selection
-    X = StandardScaler().fit_transform(dataframe)
+    X = normalize(dataframe)
 
     # estimate bandwidth for mean shift
     bandwidth = cluster.estimate_bandwidth(X, quantile=0.3)
