@@ -70,6 +70,7 @@ def cluster_analyze(dataframe, target):
 
         if hasattr(algorithm, 'cluster_centers_'):
             centers = algorithm.cluster_centers_
+            print(centers.shape)
             center_colors = colors[:len(centers)]
             plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
         plt.xlim(-2, 2)
