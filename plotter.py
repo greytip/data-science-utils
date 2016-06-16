@@ -393,16 +393,24 @@ def sb_jointplot(series1, series2):
     # Show the joint distribution using kernel density estimation
     return sns.jointplot(series1, series2, kind="kde", size=7, space=0)
 
-def roc_plot(classifier, dataframe, target):
+def roc_plot(classifier, dataframe, target, multi_class=True):
     import numpy as np
+    import pandas as pd
     import matplotlib.pyplot as plt
     from sklearn.cross_validation import StratifiedKFold
 
+    assert isinstance(target, (numpy.ndarray, pd.Series))
     # Not sure what this means some sort of initialization but are these right numbers?
     mean_tpr = 0.0
     mean_fpr = np.linspace(0, 1, 100)
     all_tpr = []
-    print(target.shape)
+
+    if not multi_class:
+        assert target.shape[1] == 1, "Please pass a nx1 array"
+        assert target.nunique() == 1, "Please pass a nx1 array"
+    else:
+        num_classes = target.shape[1]
+        target = label_binarize(target, num_classes)
     cv = StratifiedKFold(target, n_folds=6)
     for i, (train, test) in enumerate(cv):
         print(i, train, test)
@@ -413,9 +421,6 @@ def roc_plot(classifier, dataframe, target):
         mean_tpr[0] = 0.0
         roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
-    #if cross_val:
-    #    from sklearn.cross_validation import StratifiedKFold
-    #    cv = StratifiedKFold(target, n_folds=6)
     #from sklearn.metrics import roc_curve
     #fpr, tpr, thresholds = roc_curve(target, scores, pos_label=2)
     plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')

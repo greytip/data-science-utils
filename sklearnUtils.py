@@ -13,12 +13,12 @@ def dump_model(model, filename):
 def load_latest_model(foldername, modelType='knn'):
     """
     Parses through the files in the model folder and returns the latest model
-    @modelType: can be overloaded to match any string. though the function appends a * after value
+    @modelType: can be overloaded to match any string. though the function surrounds a * after value
     """
     assert foldername, "Please pass in a foldername"
     import os, fnmatch
     from sklearn.externals import joblib
-    relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*'), os.listdir(foldername)))
+    relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*.pkl'), os.listdir(foldername)))
     assert relevant_models, "no relevant models found"
     relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
     latest_model = relevant_models[0]
