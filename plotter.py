@@ -402,7 +402,7 @@ def roc_plot(classifier, dataframe, target):
     mean_tpr = 0.0
     mean_fpr = np.linspace(0, 1, 100)
     all_tpr = []
-
+    print(target.shape)
     cv = StratifiedKFold(target, n_folds=6)
     for i, (train, test) in enumerate(cv):
         print(i, train, test)

@@ -1,4 +1,3 @@
-import os, fnmatch
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 def normalize(dataframe, norm_type='StandardScalar'):
@@ -17,11 +16,13 @@ def load_latest_model(foldername, modelType='knn'):
     @modelType: can be overloaded to match any string. though the function appends a * after value
     """
     assert foldername, "Please pass in a foldername"
-    import glob
-    relevant_models = filter(None, filter(lambda x: x if fnmatch.fnmatch(x, modelType + '*') else None, os.listdir(foldername)))
-    latest_model = relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername,
-                                                                           x)).st_mtime)[0]
-    return joblib.load(latest_model)
+    import os, fnmatch
+    from sklearn.externals import joblib
+    relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*'), os.listdir(foldername)))
+    assert relevant_models, "no relevant models found"
+    relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
+    latest_model = relevant_models[0]
+    return joblib.load(os.path.join(foldername,latest_model))
 
 class MultiColumnLabelEncoder:
     def __init__(self,columns = None):
