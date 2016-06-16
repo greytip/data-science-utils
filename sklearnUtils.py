@@ -1,4 +1,4 @@
-
+import os, fnmatch
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 def normalize(dataframe, norm_type='StandardScalar'):
@@ -10,6 +10,18 @@ def dump_model(model, filename):
     assert filename, "Filename Required"
     from sklearn.externals import joblib
     joblib.dump(model, filename+ '.pkl')
+
+def load_latest_model(foldername, modelType='knn'):
+    """
+    Parses through the files in the model folder and returns the latest model
+    @modelType: can be overloaded to match any string. though the function appends a * after value
+    """
+    assert foldername, "Please pass in a foldername"
+    import glob
+    relevant_models = filter(None, filter(lambda x: x if fnmatch.fnmatch(x, modelType + '*') else None, os.listdir(foldername)))
+    latest_model = relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername,
+                                                                           x)).st_mtime)[0]
+    return joblib.load(latest_model)
 
 class MultiColumnLabelEncoder:
     def __init__(self,columns = None):

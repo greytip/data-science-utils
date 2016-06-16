@@ -405,6 +405,7 @@ def roc_plot(classifier, dataframe, target):
 
     cv = StratifiedKFold(target, n_folds=6)
     for i, (train, test) in enumerate(cv):
+        print(i, train, test)
         probas_ = classifier.fit(dataframe[train], target[train]).predict_proba(dataframe[test])
         # Compute ROC curve and area the curve
         fpr, tpr, thresholds = roc_curve(target[test], probas_[:, 1])
