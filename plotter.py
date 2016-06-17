@@ -418,20 +418,20 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
 
     num_classes = target.shape[1] or 1
     target = label_binarize(target, classes=cls_list)
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    for i in range(num_classes):
+        fpr[i], tpr[i], _ = roc_curve(target[:, i], score[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+    # Compute micro-average ROC curve and ROC area
+    fpr["micro"], tpr["micro"], _ = roc_curve(target.ravel(), score.ravel())
+    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
     if not multi_class:
         #assert target.shape[1] == 1, "Please pass a nx1 array"
         #assert target.nunique() == 1, "Please pass a nx1 array"
-        # Compute ROC curve and ROC area for each class
-        fpr = dict()
-        tpr = dict()
-        roc_auc = dict()
-        for i in range(num_classes):
-            fpr[i], tpr[i], _ = roc_curve(target[:, i], score[:, i])
-            roc_auc[i] = auc(fpr[i], tpr[i])
-
-        # Compute micro-average ROC curve and ROC area
-        fpr["micro"], tpr["micro"], _ = roc_curve(target.ravel(), score.ravel())
-        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
         # Plot of a ROC curve for a specific class
         plt.figure()
         plt.plot(fpr[2], tpr[2], label='ROC curve (area = %0.2f)' % roc_auc[2])
@@ -479,21 +479,3 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
         plt.title('Some extension of Receiver operating characteristic to multi-class')
         plt.legend(loc="lower right")
         plt.show()
-    #from sklearn.metrics import roc_curve
-    #fpr, tpr, thresholds = roc_curve(target, scores, pos_label=2)
-    plt.plot([0, 1], [0, 1], '--', color=(0.6, 0.6, 0.6), label='Luck')
-
-    mean_tpr /= len(cv)
-    mean_tpr[-1] = 1.0
-    mean_auc = auc(mean_fpr, mean_tpr)
-    plt.plot(mean_fpr, mean_tpr, 'k--',
-             label='Mean ROC (area = %0.2f)' % mean_auc, lw=2)
-
-    plt.xlim([-0.05, 1.05])
-    plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic example')
-    plt.legend(loc="lower right")
-    plt.show()
-    pass
