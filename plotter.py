@@ -410,6 +410,7 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
     from sklearn.cross_validation import StratifiedKFold
     from sklearn.metrics import roc_curve, auc
     from sklearn.preprocessing import label_binarize
+    from scipy import interp
     assert isinstance(target, (np.ndarray, pd.Series))
     # Not sure what this means some sort of initialization but are these right numbers?
     mean_tpr = 0.0
@@ -428,7 +429,7 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
     # Compute micro-average ROC curve and ROC area
     fpr["micro"], tpr["micro"], _ = roc_curve(target.ravel(), score.ravel())
     roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-
+    print(fpr.keys())
     if not multi_class:
         #assert target.shape[1] == 1, "Please pass a nx1 array"
         #assert target.nunique() == 1, "Please pass a nx1 array"
