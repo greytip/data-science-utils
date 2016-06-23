@@ -8,4 +8,7 @@ numpy
 scikit-image
 jupyter
 matplotlib
+blaze
+dask
 scilab
+ibis
