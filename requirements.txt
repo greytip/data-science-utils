@@ -4,4 +4,8 @@ seaborn
 pandas
 scikits-learn
 statsmodels
+numpy
 scikit-image
+jupyter
+matplotlib
+scilab
