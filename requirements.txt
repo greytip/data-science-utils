@@ -4,3 +4,4 @@ seaborn
 pandas
 scikits-learn
 statsmodels
+scikit-image
