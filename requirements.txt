@@ -2,7 +2,7 @@ scipy
 bokeh
 seaborn
 pandas
-scikits-learn
+scikit-learn
 statsmodels
 numpy
 scikit-image
