@@ -60,3 +60,8 @@ def perspectiveTransform(img, orig_pt, pers_pt):
     M = cv2.getPerspectiveTransform(pts1,pts2)
     return cv2.warpPerspective(img,M,(300,300))
 
+def facedetect(img):
+    import dlib
+    detector = dlib.get_frontal_face_detector()
+    dets = detector(img, 1)
+    return dets
