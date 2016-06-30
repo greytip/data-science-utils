@@ -23,8 +23,18 @@ def predictVotingClassify(model, dataframe):
 
 
 def train(dataframe, target, column=None, modelType='knn', cross_val=False):
-    # Try discretizing(aka binning) the  headcount and invoice amount fields before training the
-    # model
+    """
+    Generic training wrapper around different scikits-learn models
+
+    @params:
+        @dataframe: A pandas dataframe with all feature columns.
+        @target: pandas series or numpy array(basically a iterable) with the target values. should match length with dataframe
+        @modelType: String representing the model you want to train with
+        @cross_val: Boolean, if True returns the  model object (without training)for you to perform cross_valuation afterwards
+
+    @return:
+        Model object
+    """
 
     if modelType =='knn':
         from sklearn.neighbors import KNeighborsClassifier
@@ -73,7 +83,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
         return tVC
 
     elif modelType == 'linearRegression':
-        assert column, "Column name required for building a linear model"
+        #assert column, "Column name required for building a linear model"
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression()
