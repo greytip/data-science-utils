@@ -1,0 +1,18 @@
+Inspired by this. Read it first: http://www.analyticsvidhya.com/blog/2013/06/art-structured-thinking-analyzing/
+
+
+0. Figure out the questions involved in the analytics project and decide which ones can be tackled
+separately, and which ones are intertwined with others, and which ones need to be answered first
+before tackling others. Then pick one.
+0.5 Layout the data requirements and hypothesis before looking at what data is available
+1. Actually Look at the data summary(dataframe.describe()) that includes mean, mode, std, and quartiles)
+2. Look for patterns in the summary. Think about what each of the values mean to your question? What
+do questions do they lead to? How do they modify your question?
+3.
+
+4. Figure out the ML problem use <a
+href="http://scikit-learn.org/stable/tutorial/machine_learning_map/">this.</a>
+5. Go back to step 1 and 2 again and redo them with the ML problem .
+6. See if you have enough data (noise vs signal) or you need more samples or do you need more
+features. (see http://scikit-learn.org/stable/modules/feature_selection.html)
+7.
