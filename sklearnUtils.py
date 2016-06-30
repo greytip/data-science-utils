@@ -3,6 +3,13 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 def normalize(dataframe, norm_type='StandardScalar'):
     return StandardScaler().fit_transform(dataframe)
 
+def binarize_labels(dataframe, column):
+    labels = dataframe[column].values
+    from sklearn import preprocessing
+    enc = preprocessing.LabelBinarizer()
+    binarized_labels = enc.fit_transform(labels)
+    dataframe.drop(column, axis=1, inplace=True)
+    return dataframe, binarized_labels
 
 def dump_model(model, filename):
     assert model, "Model required"

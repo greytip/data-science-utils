@@ -79,7 +79,10 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
         l_reg = linear_model.LinearRegression()
         if cross_val:
             return l_reg
-        l_reg.fit(dataframe[column], target)
+        if column:
+            l_reg.fit(dataframe[column], target)
+        else:
+            l_reg.fit(dataframe, target)
         return l_reg
 
     elif modelType == 'AR':
