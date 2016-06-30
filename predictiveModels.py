@@ -95,6 +95,16 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
             l_reg.fit(dataframe, target)
         return l_reg
 
+    elif modelType == 'logisticRegression':
+        log_reg = LogisticRegression(random_state=123)
+        if cross_val:
+            return l_reg
+        if column:
+            log_reg.fit(dataframe[column], target)
+        else:
+            log_reg.fit(dataframe, target)
+        return log_reg
+
     elif modelType == 'AR':
         import statsmodels.api as sm
         # fit an AR model and forecast
