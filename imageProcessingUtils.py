@@ -2,6 +2,10 @@ from skimage.color.adapt_rgb import adapt_rgb, each_channel, hsv_value
 from skimage import filters
 from skimage.color import rgb2gray
 
+def image_as_gray(image_filter, image, *args, **kwargs):
+    gray_image = rgb2gray(image)
+    return image_filter(gray_image, *args, **kwargs)
+
 @adapt_rgb(each_channel)
 def sobel_each(image):
     return filters.sobel(image)
@@ -10,13 +14,10 @@ def sobel_each(image):
 def sobel_hsv(image):
     return filters.sobel(image)
 
-@adapt_rgb(as_gray)
+@adapt_rgb(image_as_gray)
 def sobel_gray(image):
     return filters.sobel(image)
 
-def image_as_gray(image_filter, image, *args, **kwargs):
-    gray_image = rgb2gray(image)
-    return image_filter(gray_image, *args, **kwargs)
 
 def makeBorder(img, btype=None, **kwargs):
     import cv2
@@ -30,9 +31,9 @@ def blendImages(img1, img2):
 
 def bitwiseOps(img1, img2=None, ops=None):
     assert ops, "Please pass a bit operation"
-    if ops='not':
+    if ops=='not':
         return cv2.bitwise_not(img)
-    if ops='add':
+    if ops=='add':
         assert img1 and img2
         return cv2.bitwise_and(img1, img2)
 

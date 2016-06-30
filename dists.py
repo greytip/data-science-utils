@@ -1,5 +1,4 @@
 from collections import defaultdict
-from django.conf import settings
 from itertools import tee
 from sqlalchemy import create_engine, MetaData, Table
 
