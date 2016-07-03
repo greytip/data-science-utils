@@ -10,5 +10,4 @@ jupyter
 matplotlib
 blaze
 dask
-scilab
 ibis
