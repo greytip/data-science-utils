@@ -11,3 +11,5 @@ matplotlib
 blaze
 dask
 ibis
+pydot
+pygraphviz

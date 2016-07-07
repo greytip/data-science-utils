@@ -2,12 +2,18 @@
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
-from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
+rom bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
                            SingleIntervalTicker, Range1d,  Plot,
                            Text, Circle, HoverTool, Triangle)
 from math import ceil
 
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
+
+def show_image(image):
+    from bokeh.plotting import figure, show
+    p = figure(x_range=(0,image.shape[0]), y_range=(0,image.shape[1]))
+    p.image(image=image, palette='Spectral11')
+    return p
 
 def timestamp(datetimeObj):
     timestamp = (datetimeObj - datetime(1970, 1, 1)).total_seconds()
