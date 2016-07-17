@@ -2,7 +2,7 @@
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
-rom bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
+from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
                            SingleIntervalTicker, Range1d,  Plot,
                            Text, Circle, HoverTool, Triangle)
 from math import ceil
