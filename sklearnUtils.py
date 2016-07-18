@@ -1,7 +1,25 @@
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-def normalize(dataframe, norm_type='StandardScalar'):
-    return StandardScaler().fit_transform(dataframe)
+def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
+    """
+    Basically converts floating point or integer valued columns to fit into the range of 0 to 1
+    """
+    from sklearn.preprocessing import *
+    if norm_type=='StandardScaler':
+        return StandardScaler().fit_transform(dataframe[col_names])
+    elif norm_type=='MinMaxScaler':
+        return MinMaxScaler().fit_transform(dataframe[col_names])
+    else:
+        return None
+
+def feature_standardize(dataframe, col_names):
+    """
+    In essence makes sure the column values obey-or-very close to the standard-z- distribution
+    But how?? and why is it not confounding all yours to think before using this, but
+    generally this helps logistic regression models from being domminated by high variance variables.
+    From here: http://www.analyticsvidhya.com/blog/2016/07/practical-guide-data-preprocessing-python-scikit-learn/
+    """
+    from sklearn.preprocessing import scale
+    return scale(dataframe[col_names])
 
 def binarize_labels(dataframe, column):
     labels = dataframe[column].values
@@ -32,6 +50,7 @@ def load_latest_model(foldername, modelType='knn'):
     return joblib.load(os.path.join(foldername,latest_model))
 
 class MultiColumnLabelEncoder:
+    from sklearn.preprocessing import LabelEncoder
     def __init__(self,columns = None):
         self.encoders = defaultdict(LabelEncoder)
         if columns:
