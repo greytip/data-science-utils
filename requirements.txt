@@ -1,3 +1,4 @@
+zipline
 scipy
 bokeh
 seaborn
