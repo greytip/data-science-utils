@@ -17,7 +17,7 @@ def correlation_analyze(df):
         plotter.mscatter(ax1, df[u], df[v])
     plt.legend(loc='upper left')
     plt.show()
-    print(df.corre())
+    print(df.corr())
 
 def regression_analyze(df, col1, col2):
     """
