@@ -293,9 +293,8 @@ def scatterplot(scatterDF, xcol, ycol, xlabel, ylabel, group=None, **kwargs):
                                 ylabel=ylabel, color=group, **kwargs)
     return scatter
 
-def mscatter(p, x, y, typestr):
-    p.scatter(x, y, marker=typestr,
-            line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12)
+def mscatter(p, x, y, typestr="o"):
+    p.scatter(x, y, marker=typestr, alpha=0.5)
 
 
 def mtext(p, x, y, textstr):

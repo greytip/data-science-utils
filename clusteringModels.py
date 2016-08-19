@@ -1,12 +1,11 @@
 from sklearn import cluster
 from sklearn.neighbors import kneighbors_graph
-from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 
 # Custom utils
-from sklearnUtils import normalize
+import sklearnUtils as sku
 
 def is_cluster(dataframe, model_type='dbscan', batch_size=2):
     if model_type == 'dbscan':
@@ -36,7 +35,7 @@ def cluster_analyze(dataframe):
 
     X, y = dataframe, target
     # normalize dataset for easier parameter selection
-    X = normalize(dataframe)
+    X = sku.feature_scale_or_normalize(dataframe, dataframe.columns)
 
     # estimate bandwidth for mean shift
     bandwidth = cluster.estimate_bandwidth(X, quantile=0.3)

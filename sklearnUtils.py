@@ -3,7 +3,7 @@ def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar')
     """
     Basically converts floating point or integer valued columns to fit into the range of 0 to 1
     """
-    from sklearn.preprocessing import *
+    from sklearn.preprocessing import StandardScaler, MinMaxScaler
     if norm_type=='StandardScaler':
         return StandardScaler().fit_transform(dataframe[col_names])
     elif norm_type=='MinMaxScaler':
