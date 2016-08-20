@@ -5,8 +5,8 @@ def correlation_analyze(df, exclude_columns = None):
     #TODO: Plot scatter plot of all combinations of column variables in the df
     import matplotlib.pyplot as plt
     import numpy as np
-    columns = filter(lambda x: x not in exclude_cols, df.columns)
-    assert len(columns) > 1 and len(columns) < 15, "Too many or too few columns"
+    assert len(df.columns) > 1 and len(df.columns) < 15, "Too many or too few columns"
+    columns = filter(lambda x: x not in exclude_columns, df.columns)
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
