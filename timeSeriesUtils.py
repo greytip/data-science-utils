@@ -1,3 +1,6 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
 def test_stationarity(timeseries):
 
     from statsmodels.tsa.stattools import adfuller
@@ -47,39 +50,26 @@ def seasonal_decompose(timeseries, timeCol='timestamp', timeInterval='30min'):
     fig = seasonal_components.plot()
     return fig
 
-def create_timeseries(dataframe, dropColumns=list(), groupByCol=list(),
-                      filterByCol=None, filterByVal=list(), timeCol='date',
+def create_timeseries(dataframe, dropColumns=list(),filterByCol=None,
+                      filterByVal=None, timeCol='date',
                       timeInterval='30min', func=sum):
     """
-    # A simple function that takes the audit_df, and returns a df with a temporal distribution of audit events
+    # A simple function that takes df, and returns a timeseries with a temporal distribution of audit events
     auditcode= <specify which audit event> (None means just a distribution of any audit event)
 
     """
-    assert groupByCol not in dropColumns, "Cannot group by a column that's to be dropped"
-    assert type(filterByCol) != list
-    new_df = dataframe.drop(dropColumns, 1)
+    new_df = dataframe.copy(deep=True)
+    new_df.drop(dropColumns, 1, inplace=True)
     if filterByVal:
-        if groupByCol:
-            new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(groupByCol + timeCol).count()
-            new_df.columns = filterByVal
-            new_df.reset_index()
-            new_df.set_index([timeCol])
-            new_df = new_df[filterByVal].unstack(groupByCol).resample(timeInterval, func).stack(groupByCol)
-        else:
-            new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(timeCol).count()
-            new_df.columns = filterByVal
-            new_df.reset_index()
-            new_df.set_index([timeCol])
-            new_df = new_df.resample(timeInterval, func)
+        assert filterByCol, "Column to be filtered by is mandatory"
+        assert filterByCol not in dropColumns, "Cannot group by a column that's to be dropped"
+        assert type(filterByCol) != list
+        new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(timeCol).agg(func)
+        new_df.columns = filterByVal
+        new_df.index = pd.to_datetime(new_df.index)
+        new_df = new_df.resample(timeInterval, func)
     else:
-        if groupByCol:
-            new_df = new_df.groupby(groupByCol + timeCol).count()
-            new_df.reset_index()
-            new_df.set_index([timeCol])
-            new_df = new_df.unstack(groupByCol).resample(timeInterval, func).stack(groupByCol)
-        else:
-            new_df = pd.DataFrame({'count': new_df.groupby(timeCol).size()})
-            new_df.set_index([timeCol])
-            new_df = new_df.resample(timeInterval, func)
-    print(new_df.index, new_df.columns)
+        new_df = new_df.groupby(timeCol).agg(func)
+        new_df.index = pd.to_datetime(new_df.index)
+        new_df = new_df.resample(timeInterval, func)
     return new_df
