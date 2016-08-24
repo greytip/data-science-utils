@@ -15,12 +15,12 @@ def test_stationarity(timeseries):
     plt.show()
 
     #Perform Dickey-Fuller test:
-    print 'Results of Dickey-Fuller Test:'
+    print('Results of Dickey-Fuller Test:')
     dftest = adfuller(timeseries, autolag='AIC')
     dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
     for key,value in dftest[4].items():
         dfoutput['Critical Value (%s)'%key] = value
-    print dfoutput
+    print(dfoutput)
 
 def plot_autocorrelation(dataframe, timeCol='timestamp', timeInterval='30min', partial=False):
     """
@@ -35,9 +35,10 @@ def plot_autocorrelation(dataframe, timeCol='timestamp', timeInterval='30min', p
 	fig = plt.figure(figsize=(12,8))
 	ax1 = fig.add_subplot(1)
 	if partial:
-		fig = sm.graphics.tsa.plot_acf(audit_events.values.squeeze(), lags=40, ax=ax1)
+		subplt = sm.graphics.tsa.plot_acf(audit_events.values.squeeze(), lags=40, ax=ax1)
 	else:
-		fig = sm.graphics.tsa.plot_pacf(audit_events, lags=40,ax=ax2)
+		subplt = sm.graphics.tsa.plot_pacf(audit_events, lags=40,ax=ax2)
+    plt.show()
 	return fig
 
 def seasonal_decompose(dataframe, timeCol='timestamp', timeInterval='30min'):
@@ -51,7 +52,7 @@ def seasonal_decompose(dataframe, timeCol='timestamp', timeInterval='30min'):
 	return fig
 
 def create_timeseries(dataframe, dropColumns=list(), groupByCol=list(),
-                      filterByCol=None, filterByVal=list(), timeCol='auditdate',
+                      filterByCol=None, filterByVal=list(), timeCol='date',
                       timeInterval='30min', func=sum):
     """
     # A simple function that takes the audit_df, and returns a df with a temporal distribution of audit events

@@ -47,14 +47,15 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     map(fit, models)
     pass
 
-def time_series_analysis(df):
+def time_series_analysis(df, timeCol='date', timeInterval='30min'):
     import timeseriesUtils as tsu
+    ts = tsu.create_timeseries(df, timeCol=timeCol, timeInterval=timeInterval)
     # TODO;
     # 1. Do, ADF(Dickey-Fuller's ) stationarity test
     # 2. Seasonal decomposition of the time series and plot it
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
-    tsu.test_stationarity()
-    tsu.plot_autocorrelation() # AR model
-    tsu.seasonal_decompose()
+    tsu.test_stationarity(ts)
+    tsu.plot_autocorrelation(ts) # AR model
+    tsu.seasonal_decompose(ts)
     pass
