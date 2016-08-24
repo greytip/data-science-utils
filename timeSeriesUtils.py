@@ -22,7 +22,7 @@ def test_stationarity(timeseries):
         dfoutput['Critical Value (%s)'%key] = value
     print(dfoutput)
 
-def plot_autocorrelation(dataframe, timeCol='timestamp', timeInterval='30min', partial=False):
+def plot_autocorrelation(timeseries_df, timeCol='timestamp', timeInterval='30min', partial=False):
     """
     Plot autocorrelation of the given dataframe based on statsmodels.tsa.stattools.acf
 			(which apparently is simple Ljung-Box model)
@@ -30,26 +30,22 @@ def plot_autocorrelation(dataframe, timeCol='timestamp', timeInterval='30min', p
        default timecol == 'timestamp' if different pass a kw parameter
 
     """
-	import statsmodels.api as sm
-    timeseries_df = create_timeseries(dataframe, timeInterval=timeInterval)
-	fig = plt.figure(figsize=(12,8))
-	ax1 = fig.add_subplot(1)
-	if partial:
-		subplt = sm.graphics.tsa.plot_acf(audit_events.values.squeeze(), lags=40, ax=ax1)
-	else:
-		subplt = sm.graphics.tsa.plot_pacf(audit_events, lags=40,ax=ax2)
+    import statsmodels.api as sm
+    fig = plt.figure(figsize=(12,8))
+    ax1 = fig.add_subplot(1)
+    if partial:
+        subplt = sm.graphics.tsa.plot_acf(audit_events.values.squeeze(), lags=40, ax=ax1)
+    else:
+        subplt = sm.graphics.tsa.plot_pacf(audit_events, lags=40,ax=ax2)
     plt.show()
-	return fig
+    return fig
 
-def seasonal_decompose(dataframe, timeCol='timestamp', timeInterval='30min'):
-	"""
-	"""
-	import statsmodels.api as sm
-    timeseries_df = create_timeseries(dataframe, timeCol=timeCol, timeInterval=timeInterval)
-	timeseries_df.interpolate(inplace=True)
-	seasonal_components = sm.tsa.seasonal_decompose(audit_events.values, model='additive', freq=24)
-	fig = seasonal_components.plot()
-	return fig
+def seasonal_decompose(timeseries, timeCol='timestamp', timeInterval='30min'):
+    import statsmodels.api as sm
+    timeseries.interpolate(inplace=True)
+    seasonal_components = sm.tsa.seasonal_decompose(audit_events.values, model='additive', freq=24)
+    fig = seasonal_components.plot()
+    return fig
 
 def create_timeseries(dataframe, dropColumns=list(), groupByCol=list(),
                       filterByCol=None, filterByVal=list(), timeCol='date',
@@ -66,17 +62,24 @@ def create_timeseries(dataframe, dropColumns=list(), groupByCol=list(),
         if groupByCol:
             new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(groupByCol + timeCol).count()
             new_df.columns = filterByVal
+            new_df.reset_index()
+            new_df.set_index([timeCol])
             new_df = new_df[filterByVal].unstack(groupByCol).resample(timeInterval, func).stack(groupByCol)
         else:
             new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(timeCol).count()
             new_df.columns = filterByVal
+            new_df.reset_index()
+            new_df.set_index([timeCol])
             new_df = new_df.resample(timeInterval, func)
     else:
         if groupByCol:
             new_df = new_df.groupby(groupByCol + timeCol).count()
-            new_df.columns = filterByVal
-            new_df = new_df[filterByVal].unstack(groupByCol).resample(timeInterval, func).stack(groupByCol)
+            new_df.reset_index()
+            new_df.set_index([timeCol])
+            new_df = new_df.unstack(groupByCol).resample(timeInterval, func).stack(groupByCol)
         else:
-            new_df = new_df.groupby(timeCol).count()
+            new_df = pd.DataFrame({'count': new_df.groupby(timeCol).size()})
+            new_df.set_index([timeCol])
             new_df = new_df.resample(timeInterval, func)
+    print(new_df.index, new_df.columns)
     return new_df

@@ -47,9 +47,9 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     map(fit, models)
     pass
 
-def time_series_analysis(df, timeCol='date', timeInterval='30min'):
+def time_series_analysis(df, timeCol='date', timeInterval='30min', **kwargs):
     import timeseriesUtils as tsu
-    ts = tsu.create_timeseries(df, timeCol=timeCol, timeInterval=timeInterval)
+    ts = tsu.create_timeseries(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs)
     # TODO;
     # 1. Do, ADF(Dickey-Fuller's ) stationarity test
     # 2. Seasonal decomposition of the time series and plot it
