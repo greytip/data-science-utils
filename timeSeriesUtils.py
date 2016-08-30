@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def test_stationarity(timeseries):
+def test_stationarity(timeseries, valueCol, **kwargs):
 
     from statsmodels.tsa.stattools import adfuller
     #Determing rolling statistics
@@ -18,14 +18,15 @@ def test_stationarity(timeseries):
     plt.show()
 
     #Perform Dickey-Fuller test:
+    dftest = adfuller(timeseries[valueCol], autolag=kwargs.get('autolag', 't-stat'))
     print('Results of Dickey-Fuller Test:')
-    dftest = adfuller(timeseries, autolag='AIC')
     dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
     for key,value in dftest[4].items():
         dfoutput['Critical Value (%s)'%key] = value
     print(dfoutput)
 
-def plot_autocorrelation(timeseries_df, timeCol='timestamp', timeInterval='30min', partial=False):
+def plot_autocorrelation(timeseries_df, valueCol=None,
+                         timeCol='timestamp', timeInterval='30min', partial=False):
     """
     Plot autocorrelation of the given dataframe based on statsmodels.tsa.stattools.acf
 			(which apparently is simple Ljung-Box model)
@@ -35,22 +36,22 @@ def plot_autocorrelation(timeseries_df, timeCol='timestamp', timeInterval='30min
     """
     import statsmodels.api as sm
     fig = plt.figure(figsize=(12,8))
-    ax1 = fig.add_subplot(1)
+    ax1 = fig.add_subplot(111)
     if partial:
-        subplt = sm.graphics.tsa.plot_acf(audit_events.values.squeeze(), lags=40, ax=ax1)
+        subplt = sm.graphics.tsa.plot_acf(timeseries_df[valueCol].squeeze(), lags=40, ax=ax1)
     else:
-        subplt = sm.graphics.tsa.plot_pacf(audit_events, lags=40,ax=ax2)
+        subplt = sm.graphics.tsa.plot_pacf(timeseries_df[valueCol], lags=40, ax=ax1)
     plt.show()
     return fig
 
-def seasonal_decompose(timeseries, timeCol='timestamp', timeInterval='30min'):
+def seasonal_decompose(timeseries_df, valueCol, timeCol='timestamp', timeInterval='30min'):
     import statsmodels.api as sm
-    timeseries.interpolate(inplace=True)
-    seasonal_components = sm.tsa.seasonal_decompose(audit_events.values, model='additive', freq=24)
+    timeseries_df.interpolate(inplace=True)
+    seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, model='additive')
     fig = seasonal_components.plot()
     return fig
 
-def create_timeseries(dataframe, dropColumns=list(),filterByCol=None,
+def create_timeseries_df(dataframe, dropColumns=list(),filterByCol=None,
                       filterByVal=None, timeCol='date',
                       timeInterval='30min', func=sum):
     """
