@@ -60,7 +60,7 @@ def preprocess_verticals(df):
 
 if __name__ == '__main__':
     conn = create_engine(settings.local_db_url, execution_options=dict(stream_results=True))
-    tables = ['apx_audit_logs']
+    tables = ['apx_active_services_info']
     table_dfs = dict()
     for tablename in tables:
         table_dfs.update({tablename: dataload(conn,table_name=tablename,
