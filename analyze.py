@@ -1,13 +1,15 @@
 import plotter
 import itertools
 
-def correlation_analyze(df, exclude_columns = None):
+def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
     #TODO: Figure out a way to find correlation between two categorical(ordinal makes more sense) variables(probably by
     #    adding a 3rd, numerical variable??)
     import matplotlib.pyplot as plt
     import numpy as np
-    columns = filter(lambda x: x not in exclude_columns, df.columns)
+    from bokeh.plotting import show
+
     assert len(df.columns) > 1 and len(df.columns) < 15, "Too many or too few columns"
+    columns = filter(lambda x: x not in exclude_columns, df.columns)
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
@@ -20,7 +22,16 @@ def correlation_analyze(df, exclude_columns = None):
         ax1.set_xlabel(u)
         ax1.set_ylabel(v)
         ax1.legend(loc='upper left')
+    print("# Correlation btw Numerical Columns")
     plt.show()
+    if (categories and measure):
+        assert len(categories) == 2, "Only two categories supported at the moment"
+        print("# Correlation btw Categorical Columns %s %s by measure %s" % (categories[0],
+                                                                            categories[1],
+                                                                            measure))
+        heatmap = plotter.heatmap(df, categories[0], categories[1], measure)
+    show(heatmap)
+    print("# Pandas correlation coefficients matrix")
     print(df.corr())
 
 def regression_analyze(df, col1, col2, trainsize=0.8):
