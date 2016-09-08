@@ -4,7 +4,6 @@ import numpy as np
 import os
 import pandas as pd
 from sqlalchemy import create_engine
-from sqlalchemy.orm import session
 
 import settings
 verticals = None
@@ -15,18 +14,23 @@ def preprocess(df):
     df.drop(common_drop_columns,1, inplace=True, errors='ignore')
     return df
 
-def dataload(conn_or_session, table_name, preprocess_func=preprocess, batch=False,
-             sample=False, sample_pct=5, sample_type='BERNOULLI'):
-    global verticals
-    if os.path.exists('../greytip_stuff/verticals.json'):
-        verticals = json.load(open('../greytip_stuff/verticals.json'))
-    else:
-        verticals = []
+def dataload(conn_or_session, table_name=None, custom_sql=None, preprocess_func=preprocess,
+             batch=False, batch_size=None, sample=False, sample_pct=5, sample_type='BERNOULLI'):
 
-    if os.path.exists('../greytip_stuff/' + table_name + '.csv'):
-        return preprocess_func(pd.read_csv('../greytip_stuff/' + table_name + '.csv',
+    from sqlalchemy.orm import session
+    assert (bool(table_name) ^ bool(custom_sql)), "Only table_name or custom_sql allowed"
+    #TODO: implement  sampling from csv also
+    if custom_sql:
+        fname = custom_sql
+    else:
+        fname = table_name
+    if os.path.exists('../greytip_stuff/' + fname + '.csv'):
+        return preprocess_func(pd.read_csv('../greytip_stuff/' + fname + '.csv',
                           encoding='utf-8-sig',  sep=','))
     else:
+        if custom_sql:
+            assert (not sample)
+            return  preprocess_func(pd.read_sql(custom_sql, conn_or_session))
         if sample:
             assert sample_pct, "Sample percent mandatory"
             assert sample_type, "Sample type mandatory"
@@ -37,16 +41,9 @@ def dataload(conn_or_session, table_name, preprocess_func=preprocess, batch=Fals
             return preprocess_func(pd.read_sql_table(table_name, conn_or_session, schema='dv'))
         else:
             assert isinstance(conn_or_session,session), "batch loading needs a session argument"
-
-            return preprocess_func(pd.read_s)
-        # tables_df[table_name].to_csv('../greytip_stuff/' + table_name + '.csv', index=False, sep=',',
-        #                                encoding='utf-8')
-
-    for key in rev_verticals:
-        tables_df['v_account_summary'].replace(key, rev_verticals[key],inplace=True)
-
-    return tables_df
-
+            assert batch_size, "batch needs  a batch_size argument"
+            return preprocess_func(pd.read_sql("SELECT * FROM %s;"%(table_name),
+                                                        chunksize=batch_size))
 
 def preprocess_verticals(df):
     df = preprocess(df)
