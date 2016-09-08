@@ -2,8 +2,6 @@ import plotter
 import itertools
 
 def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
-    #TODO: Figure out a way to find correlation between two categorical(ordinal makes more sense) variables(probably by
-    #    adding a 3rd, numerical variable??)
     import matplotlib.pyplot as plt
     import numpy as np
     from bokeh.plotting import show
@@ -25,6 +23,7 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     print("# Correlation btw Numerical Columns")
     plt.show()
     if (categories and measure):
+        #TODO; Add support for more categorical variables
         assert len(categories) == 2, "Only two categories supported at the moment"
         print("# Correlation btw Categorical Columns %s %s by measure %s" % (categories[0],
                                                                             categories[1],
