@@ -32,7 +32,7 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     show(heatmap)
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
-    # Add co-variance matrix
+    # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance
     print("# Pandas co-variance coefficients matrix")
     print(df.cov())
 
@@ -91,5 +91,8 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
 
 def cluster_analyze():
     from sklearn.cluster import *
-
+    # Use clustering algorithms from here
+    # http://scikit-learn.org/stable/modules/clustering.html#clustering
+    # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
+    # coloured area plots ??)
     pass
