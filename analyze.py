@@ -32,6 +32,9 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     show(heatmap)
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
+    # Add co-variance matrix
+    print("# Pandas co-variance coefficients matrix")
+    print(df.cov())
 
 def regression_analyze(df, col1, col2, trainsize=0.8):
     """
@@ -84,4 +87,9 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
         tsu.seasonal_decompose(ts, valueCol=valueCol, **kwargs.get('seasonal'))
     else:
         tsu.seasonal_decompose(ts, valueCol=valueCol)
+    pass
+
+def cluster_analyze():
+    from sklearn.cluster import *
+
     pass
