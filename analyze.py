@@ -31,7 +31,7 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
                                                                                 categories[1],
                                                                                 meas))
             heatmap = plotter.heatmap(df, categories[0], categories[1],
-                                      meas, title="%s vs %s %d heatmap"%(categories[0],
+                                      meas, title="%s vs %s %s heatmap"%(categories[0],
                                                                          categories[1],
                                                                          meas))
             show(heatmap)
@@ -66,7 +66,10 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     pass
 
 def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min',
-                         plot_title = 'timeseries', skip_stationarity=False, **kwargs):
+                         plot_title = 'timeseries',
+                         skip_stationarity=False,
+                         skip_autocorrelation=False,
+                         skip_seasonal_decompose=False, **kwargs):
     import timeSeriesUtils as tsu
     if 'create' in kwargs:
         ts = tsu.create_timeseries_df(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs.get('create'))
@@ -84,21 +87,24 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
         else:
             tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title)
 
-    if 'autocorrelation' in kwargs:
-        tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
-        tsu.plot_autocorrelation(ts, valueCol=valueCol, partial=True, **kwargs.get('autocorrelation')) # partial AR model
-    else:
-        tsu.plot_autocorrelation(ts, valueCol=valueCol) # AR model
-        tsu.plot_autocorrelation(ts, valueCol=valueCol, partial=True) # partial AR model
+    if not skip_autocorrelation:
+        if 'autocorrelation' in kwargs:
+            tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
+            tsu.plot_autocorrelation(ts, valueCol=valueCol, partial=True, **kwargs.get('autocorrelation')) # partial AR model
+        else:
+            tsu.plot_autocorrelation(ts, valueCol=valueCol) # AR model
+            tsu.plot_autocorrelation(ts, valueCol=valueCol, partial=True) # partial AR model
 
-    if 'seasonal' in kwargs:
-        tsu.seasonal_decompose(ts, valueCol=valueCol, **kwargs.get('seasonal'))
-    else:
-        tsu.seasonal_decompose(ts, valueCol=valueCol)
-    pass
+    if not skip_seasonal_decompose:
+        if 'seasonal' in kwargs:
+            seasonal_args = kwargs.get('seasonal')
+
+            tsu.seasonal_decompose(ts, **seasonal_args)
+        else:
+            tsu.seasonal_decompose(ts)
 
 def cluster_analyze():
-    from sklearn.cluster import *
+    from sklearn.cluster import KMeans
     # Use clustering algorithms from here
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
     # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
