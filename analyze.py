@@ -6,8 +6,9 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     import numpy as np
     from bokeh.plotting import show
 
-    assert len(df.columns) > 1 and len(df.columns) < 15, "Too many or too few columns"
-    columns = filter(lambda x: x not in exclude_columns, df.columns)
+    columns = list(filter(lambda x: x not in exclude_columns, df.columns))
+    assert len(columns) > 1, "Too few columns"
+    #assert len(columns) < 20, "Too many columns"
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
@@ -24,12 +25,16 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     plt.show()
     if (categories and measure):
         #TODO; Add support for more categorical variables
-        assert len(categories) == 2, "Only two categories supported at the moment"
-        print("# Correlation btw Categorical Columns %s %s by measure %s" % (categories[0],
-                                                                            categories[1],
-                                                                            measure))
-        heatmap = plotter.heatmap(df, categories[0], categories[1], measure)
-    show(heatmap)
+        for meas in measure:
+            assert len(categories) == 2, "Only two categories supported at the moment"
+            print("# Correlation btw Columns %s & %s by measure %s" % (categories[0],
+                                                                                categories[1],
+                                                                                meas))
+            heatmap = plotter.heatmap(df, categories[0], categories[1],
+                                      meas, title="%s vs %s %d heatmap"%(categories[0],
+                                                                         categories[1],
+                                                                         meas))
+            show(heatmap)
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
 
@@ -57,8 +62,9 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     map(fit, models)
     pass
 
-def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min', **kwargs):
-    import timeseriesUtils as tsu
+def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min',
+                         plot_title = 'timeseries', skip_stationarity=False, **kwargs):
+    import timeSeriesUtils as tsu
     if 'create' in kwargs:
         ts = tsu.create_timeseries_df(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs.get('create'))
     else:
@@ -68,10 +74,12 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 2. Seasonal decomposition of the time series and plot it
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
-    if 'stationarity' in kwargs:
-        tsu.test_stationarity(ts, valueCol=valueCol, **kwargs.get('stationarity'))
-    else:
-        tsu.test_stationarity(ts, valueCol=valueCol)
+    if not skip_stationarity:
+        if 'stationarity' in kwargs:
+            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title,
+                                                    **kwargs.get('stationarity'))
+        else:
+            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title)
 
     if 'autocorrelation' in kwargs:
         tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model

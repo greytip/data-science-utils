@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def test_stationarity(timeseries, valueCol, **kwargs):
+def test_stationarity(timeseries, valueCol, title='timeseries', **kwargs):
 
     from statsmodels.tsa.stattools import adfuller
     #Determing rolling statistics
@@ -14,7 +14,7 @@ def test_stationarity(timeseries, valueCol, **kwargs):
     mean = plt.plot(rolmean, color='red', label='Rolling Mean')
     std = plt.plot(rolstd, color='black', label = 'Rolling Std')
     plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
+    plt.title('Rolling Mean & Standard Deviation of ' + title )
     plt.show()
 
     #Perform Dickey-Fuller test:
