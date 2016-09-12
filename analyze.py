@@ -26,15 +26,17 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     if (categories and measure):
         #TODO; Add support for more categorical variables
         for meas in measure:
-            assert len(categories) == 2, "Only two categories supported at the moment"
-            print("# Correlation btw Columns %s & %s by measure %s" % (categories[0],
-                                                                                categories[1],
+            combos = itertools.combinations(categories, 2)
+            for combo in combos:
+                #assert len(categories) == 2, "Only two categories supported at the moment"
+                print("# Correlation btw Columns %s & %s by measure %s" % (combo[0],
+                                                                                combo[1],
                                                                                 meas))
-            heatmap = plotter.heatmap(df, categories[0], categories[1],
-                                      meas, title="%s vs %s %s heatmap"%(categories[0],
-                                                                         categories[1],
+                heatmap = plotter.heatmap(df, combo[0], combo[1],
+                                      meas, title="%s vs %s %s heatmap"%(combo[0],
+                                                                         combo[1],
                                                                          meas))
-            show(heatmap)
+                show(heatmap)
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
     # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance
