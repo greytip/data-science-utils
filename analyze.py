@@ -96,12 +96,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 2. Seasonal decomposition of the time series and plot it
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
-    if not skip_stationarity:
-        if 'stationarity' in kwargs:
-            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title,
-                                                    **kwargs.get('stationarity'))
-        else:
-            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title)
+    if 'stationarity' in kwargs:
+        tsu.test_stationarity(ts, valueCol=valueCol,
+                                  title=plot_title,
+                                  skip_stationarity=skip_stationarity,
+                                  **kwargs.get('stationarity'))
+    else:
+        tsu.test_stationarity(ts, valueCol=valueCol,
+                                  title=plot_title,
+                                  skip_stationarity=skip_stationarity
+                                    )
 
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
