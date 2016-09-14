@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def test_stationarity(timeseries, valueCol, title='timeseries', **kwargs):
+def test_stationarity(timeseries, valueCol, skip_stationarity=False, title='timeseries', **kwargs):
 
     from statsmodels.tsa.stattools import adfuller
     #Determing rolling statistics
@@ -17,13 +17,14 @@ def test_stationarity(timeseries, valueCol, title='timeseries', **kwargs):
     plt.title('Rolling Mean & Standard Deviation of ' + title )
     plt.show()
 
-    #Perform Dickey-Fuller test:
-    dftest = adfuller(timeseries[valueCol], autolag=kwargs.get('autolag', 't-stat'))
-    print('Results of Dickey-Fuller Test:')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print(dfoutput)
+    if not skip_stationarity:
+        #Perform Dickey-Fuller test:
+        dftest = adfuller(timeseries[valueCol], autolag=kwargs.get('autolag', 't-stat'))
+        print('Results of Dickey-Fuller Test:')
+        dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
+        for key,value in dftest[4].items():
+            dfoutput['Critical Value (%s)'%key] = value
+        print(dfoutput)
 
 def plot_autocorrelation(timeseries_df, valueCol=None,
                          timeCol='timestamp', timeInterval='30min', partial=False):
@@ -44,10 +45,11 @@ def plot_autocorrelation(timeseries_df, valueCol=None,
     plt.show()
     return fig
 
-def seasonal_decompose(timeseries_df, freq='30min', **kwargs):
+def seasonal_decompose(timeseries_df, freq=None, **kwargs):
     import statsmodels.api as sm
     timeseries_df.interpolate(inplace=True)
-    seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, **kwargs)
+    if not freq: freq = len(timeseries_df) - 2
+    seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, freq=freq, **kwargs)
     fig = seasonal_components.plot()
     return fig
 
@@ -60,11 +62,13 @@ def create_timeseries_df(dataframe, dropColumns=list(),filterByCol=None,
 
     """
     new_df = dataframe.copy(deep=True)
-    new_df.drop(dropColumns, 1, inplace=True)
+    if dropColumns:
+        new_df.drop(dropColumns, 1, inplace=True)
     if filterByVal:
+        assert type(filterByVal) == list, "Need a list of values for filterByVal"
         assert filterByCol, "Column to be filtered by is mandatory"
         assert filterByCol not in dropColumns, "Cannot group by a column that's to be dropped"
-        assert type(filterByCol) != list
+        assert type(filterByCol) != list, "Only single column can be passed"
         new_df = new_df[new_df[filterByCol].isin(filterByVal)].groupby(timeCol).agg(func)
         new_df.columns = filterByVal
         new_df.index = pd.to_datetime(new_df.index)

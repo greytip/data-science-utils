@@ -1,8 +1,20 @@
 import plotter
 import itertools
+import matplotlib.pyplot as plt
+
+def chunks(combos, size=9):
+    for i in range(0, len(combos), size):
+        yield combos[i:i + size]
+
+def get_figures_and_combos(combos):
+    figures = list()
+    combo_lists = list()
+    for each in chunks(combos, 9):
+        figures.append(plt.figure(figsize=(20,10)))
+        combo_lists.append(each)
+    return figures, combo_lists
 
 def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
-    import matplotlib.pyplot as plt
     import numpy as np
     from bokeh.plotting import show
 
@@ -11,16 +23,20 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     #assert len(columns) < 20, "Too many columns"
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
+    figures, combo_lists = get_figures_and_combos(combos)
+    print(figures, combo_lists)
+    assert len(figures) == len(combo_lists), "figures not equal to plot groups "
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
-    fig = plt.figure(figsize=(20,10))
-    for i, combo in enumerate(combos):
-        u,v = combo
-        # Damn odd way of matplotlib's putting together how many sub plots and which one.
-        ax1 = fig.add_subplot(int("3" + str(int(len(combos)/3)) + str(i + 1)))
-        plotter.mscatter(ax1, df[u], df[v])
-        ax1.set_xlabel(u)
-        ax1.set_ylabel(v)
-        ax1.legend(loc='upper left')
+    for i, figure in enumerate(figures):
+        for combo in combo_lists[i]:
+            u,v = combo
+            # Damn odd way of matplotlib's putting together how many sub plots and which one.
+            ax1 = figure.add_subplot(int("3" + str(int(len(combo_lists[i])/3)) + str(i + 1)))
+            plotter.mscatter(ax1, df[u], df[v])
+            ax1.set_xlabel(u)
+            ax1.set_ylabel(v)
+            #ax1.legend(loc='upper left')
+
     print("# Correlation btw Numerical Columns")
     plt.show()
     if (categories and measure):
@@ -82,12 +98,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 2. Seasonal decomposition of the time series and plot it
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
-    if not skip_stationarity:
-        if 'stationarity' in kwargs:
-            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title,
-                                                    **kwargs.get('stationarity'))
-        else:
-            tsu.test_stationarity(ts, valueCol=valueCol, title=plot_title)
+    if 'stationarity' in kwargs:
+        tsu.test_stationarity(ts, valueCol=valueCol,
+                                  title=plot_title,
+                                  skip_stationarity=skip_stationarity,
+                                  **kwargs.get('stationarity'))
+    else:
+        tsu.test_stationarity(ts, valueCol=valueCol,
+                                  title=plot_title,
+                                  skip_stationarity=skip_stationarity
+                                    )
 
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
