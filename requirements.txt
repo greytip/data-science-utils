@@ -1,16 +1,11 @@
-zipline
 scipy
 bokeh
 seaborn
 pandas
 scikit-learn
-statsmodels
 numpy
-scikit-image
 jupyter
 matplotlib
-blaze
-dask
-ibis
-pydot
-pygraphviz
+sqlalchemy
+psycopg2
+-e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
