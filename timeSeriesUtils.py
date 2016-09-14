@@ -47,7 +47,7 @@ def plot_autocorrelation(timeseries_df, valueCol=None,
 def seasonal_decompose(timeseries_df, freq='30min', **kwargs):
     import statsmodels.api as sm
     timeseries_df.interpolate(inplace=True)
-    seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, **kwargs)
+    seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, freq=freq, **kwargs)
     fig = seasonal_components.plot()
     return fig
 
