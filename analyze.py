@@ -138,6 +138,7 @@ def cluster_analyze(dataframe, cluster_type='KMeans'):
     import matplotlib.cm as cm
     import numpy as np
 
+    dataframe = dataframe.as_matrix()
     # Silhouette analysis --
     #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
     #TODO: Add more clustering methods/types like say dbscan and others
