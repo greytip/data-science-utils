@@ -15,6 +15,7 @@ def get_figures_and_combos(combos):
     return figures, combo_lists
 
 def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
+	# TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
     import numpy as np
     from bokeh.plotting import show
 
@@ -25,8 +26,8 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     combos = list(itertools.combinations(numerical_columns, 2))
     figures, combo_lists = get_figures_and_combos(combos)
     print(figures, combo_lists)
-    assert len(figures) == len(combo_lists), "figures not equal to plot groups "
-    # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
+    assert len(figures) == len(combo_lists), "figures not equal to plot groups"
+    plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05, hspace=.01)
     for i, figure in enumerate(figures):
         for combo in combo_lists[i]:
             u,v = combo
@@ -126,22 +127,17 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
             tsu.seasonal_decompose(ts)
 
 def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
-    # Use clustering algorithms from here
-    # http://scikit-learn.org/stable/modules/clustering.html#clustering
-    # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
-    # coloured area plots ??)
 
+    # coloured area plots ??)
     from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
     from sklearn.metrics import silhouette_samples, silhouette_score
 
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import numpy as np
+    import time
 
     dataframe = dataframe.as_matrix()
-    # Silhouette analysis --
-    #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
-    #TODO: Add more clustering methods/types like say dbscan and others
     if cluster_type == 'KMeans':
         assert n_clusters, "Number of clusters argument mandatory"
         cluster_callable = KMeans
@@ -164,6 +160,66 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         clusterer = Birch(n_clusters=2)
     else:
         raise "Unknown clustering algorithm type"
+    plt.figure(figsize=(2 + 3, 9.5))
+    plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,hspace=.01)
+    t0 = time.time()
+    clusterer.fit(dataframe)
+    t1 = time.time()
+    if hasattr(clusterer, 'labels_'):
+        y_pred = clusterer.labels_.astype(np.int)
+    else:
+        y_pred = clusterer.predict(dataframe)
+    print(t0,t1)
+    # plot
+    plt.subplot(4, 1 , 1)
+    if i_dataset == 0:
+        plt.title(name, size=18)
+    plt.scatter(dataframe[:, 0], dataframe[:, 1], color=colors[y_pred].tolist(), s=10)
+
+    if hasattr(clusterer, 'cluster_centers_'):
+        centers = clusterer.cluster_centers_
+        center_colors = colors[:len(centers)]
+        plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
+    plt.xlim(-2, 2)
+    plt.ylim(-2, 2)
+    plt.xticks(())
+    plt.yticks(())
+    plt.text(.99, .01, ('%.2fs' % (t1 - t0)).lstrip('0'),
+				transform=plt.gca().transAxes, size=15,
+				horizontalalignment='right')
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
+    plot_num += 1
+    plt.show()
+
+def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
+    # Use clustering algorithms from here
+    # http://scikit-learn.org/stable/modules/clustering.html#clustering
+    # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
+    # coloured area plots ??)
+
+    from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
+    from sklearn.metrics import silhouette_samples, silhouette_score
+
+    import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    import numpy as np
+
+    dataframe = dataframe.as_matrix()
+    # Silhouette analysis --
+    #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
+    #TODO: Add more clustering methods/types like say dbscan and others
+    if cluster_type == 'KMeans':
+        assert n_clusters, "Number of clusters argument mandatory"
+        cluster_callable = KMeans
+        # seed of 10 for reproducibility.
+        clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
+    elif cluster_type == 'spectral':
+        assert n_clusters, "Number of clusters argument mandatory"
+        clusterer = SpectralClustering(n_clusters=n_clusters,
+                                              eigen_solver='arpack',
+                                              affinity="nearest_neighbors")
+    else:
+        raise "Unknown clustering algorithm type"
     # Create a subplot with 1 row and 2 columns
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(18, 7)
@@ -174,7 +230,8 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     ax1.set_xlim([-0.1, 1])
     # The (n_clusters+1)*10 is for inserting blank space between silhouette
     # plots of individual clusters, to demarcate them clearly.
-    ax1.set_ylim([0, len(dataframe) + (n_clusters + 1) * 10])
+
+    #ax1.set_ylim([0, len(dataframe) + (n_clusters + 1) * 10])
 
     # Initialize the clusterer with n_clusters value and a random generator
     cluster_labels = clusterer.fit_predict(dataframe)
