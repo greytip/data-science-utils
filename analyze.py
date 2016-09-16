@@ -137,7 +137,7 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     import numpy as np
     import time
 
-    dataframe = dataframe.as_matrix()
+    df_mat = dataframe.as_matrix()
     if cluster_type == 'KMeans':
         assert n_clusters, "Number of clusters argument mandatory"
         cluster_callable = KMeans
@@ -161,35 +161,29 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     else:
         raise "Unknown clustering algorithm type"
     plt.figure(figsize=(2 + 3, 9.5))
-    plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,hspace=.01)
+    colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
+    colors = np.hstack([colors] * 20)
+    #plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,hspace=.01)
     t0 = time.time()
-    clusterer.fit(dataframe)
+    clusterer.fit(df_mat)
     t1 = time.time()
     if hasattr(clusterer, 'labels_'):
         y_pred = clusterer.labels_.astype(np.int)
     else:
-        y_pred = clusterer.predict(dataframe)
-    print(t0,t1)
+        y_pred = clusterer.predict(df_mat)
+    dataframe['y_pred'] = y_pred
     # plot
-    plt.subplot(4, 1 , 1)
-    if i_dataset == 0:
-        plt.title(name, size=18)
-    plt.scatter(dataframe[:, 0], dataframe[:, 1], color=colors[y_pred].tolist(), s=10)
+    #plt.subplot(4, 1 , 1)
+    plt.title(cluster_type, size=18)
+    plt.scatter(df_mat[:, 0], df_mat[:, 1]) # color=colors[y_pred].tolist(), s=10)
 
     if hasattr(clusterer, 'cluster_centers_'):
         centers = clusterer.cluster_centers_
         center_colors = colors[:len(centers)]
         plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
+    plt.show()
     plt.xlim(-2, 2)
     plt.ylim(-2, 2)
-    plt.xticks(())
-    plt.yticks(())
-    plt.text(.99, .01, ('%.2fs' % (t1 - t0)).lstrip('0'),
-				transform=plt.gca().transAxes, size=15,
-				horizontalalignment='right')
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
-    plot_num += 1
-    plt.show()
 
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     # Use clustering algorithms from here
@@ -284,14 +278,15 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     ax2.scatter(dataframe[:, 0], dataframe[:, 1], marker='.', s=30, lw=0, alpha=0.7,
                 c=colors)
 
-    # Labeling the clusters
-    centers = clusterer.cluster_centers_
-    # Draw white circles at cluster centers
-    ax2.scatter(centers[:, 0], centers[:, 1],
-                marker='o', c="white", alpha=1, s=200)
+    if hasattr(clusterer, 'cluster_centers_'):
+        # Labeling the clusters
+        centers = clusterer.cluster_centers_
+        # Draw white circles at cluster centers
+        ax2.scatter(centers[:, 0], centers[:, 1],
+                    marker='o', c="white", alpha=1, s=200)
 
-    for i, c in enumerate(centers):
-        ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
+        for i, c in enumerate(centers):
+            ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
 
     ax2.set_title("The visualization of the clustered data.")
     ax2.set_xlabel("Feature space for the 1st feature")
