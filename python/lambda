@@ -1,0 +1,20 @@
+#!/bin/python
+import sys
+# libs I use commonly...
+import random, itertools, re
+
+# parse the types of the columns
+types = map(eval, sys.argv[2:])
+
+# craft a lambda with the args x0, x1, ... xN
+f = eval("lambda " + ','.join("x"+str(i) for i in xrange(len(types))) + ":" + sys.argv[1])
+
+# apply lambda to stdin, don't print results of None
+for line in sys.stdin:
+	args = []
+	for t, e in zip(types, line.strip().split()):
+		args.append(t(e))
+	result = print f(*args)
+	if result != None:
+		print result
+
