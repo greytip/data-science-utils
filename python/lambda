@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 import sys
 # libs I use commonly...
 import random, itertools, re
@@ -14,7 +14,7 @@ for line in sys.stdin:
 	args = []
 	for t, e in zip(types, line.strip().split()):
 		args.append(t(e))
-	result = print f(*args)
+	result = f(*args)
 	if result != None:
-		print result
+		print(result)
 

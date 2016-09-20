@@ -25,9 +25,9 @@ def correlation_analyze(df, exclude_columns = None, categories=[], measure=None)
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
     figures, combo_lists = get_figures_and_combos(combos)
-    print(figures, combo_lists)
     assert len(figures) == len(combo_lists), "figures not equal to plot groups"
     plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05, hspace=.01)
+
     for i, figure in enumerate(figures):
         for combo in combo_lists[i]:
             u,v = combo
@@ -182,8 +182,8 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         center_colors = colors[:len(centers)]
         plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
     plt.show()
-    plt.xlim(-2, 2)
-    plt.ylim(-2, 2)
+    #plt.xlim(-2, 2)
+    #plt.ylim(-2, 2)
 
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     # Use clustering algorithms from here
@@ -197,103 +197,110 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import numpy as np
+    import collections
 
+    assert isinstance(n_clusters, collections.Iterable), "n_clusters must be an iterable object"
+    if not n_clusters:
+        n_clusters = range(2, 8, 2)
     dataframe = dataframe.as_matrix()
+
     # Silhouette analysis --
     #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
     #TODO: Add more clustering methods/types like say dbscan and others
-    if cluster_type == 'KMeans':
-        assert n_clusters, "Number of clusters argument mandatory"
-        cluster_callable = KMeans
-        # seed of 10 for reproducibility.
-        clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
-    elif cluster_type == 'spectral':
-        assert n_clusters, "Number of clusters argument mandatory"
-        clusterer = SpectralClustering(n_clusters=n_clusters,
-                                              eigen_solver='arpack',
-                                              affinity="nearest_neighbors")
-    else:
-        raise "Unknown clustering algorithm type"
-    # Create a subplot with 1 row and 2 columns
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    fig.set_size_inches(18, 7)
 
-    # The 1st subplot is the silhouette plot
-    # The silhouette coefficient can range from -1, 1 but in this example all
-    # lie within [-0.1, 1]
-    ax1.set_xlim([-0.1, 1])
-    # The (n_clusters+1)*10 is for inserting blank space between silhouette
-    # plots of individual clusters, to demarcate them clearly.
+    for cluster in n_clusters:
+        if cluster_type == 'KMeans':
+            assert n_clusters, "Number of clusters argument mandatory"
+            cluster_callable = KMeans
+            # seed of 10 for reproducibility.
+            clusterer = cluster_callable(n_clusters=cluster, random_state=10)
+        elif cluster_type == 'spectral':
+            assert n_clusters, "Number of clusters argument mandatory"
+            clusterer = SpectralClustering(n_clusters=cluster,
+                                                  eigen_solver='arpack',
+                                                  affinity="nearest_neighbors")
+        else:
+            raise "Unknown clustering algorithm type"
+        # Create a subplot with 1 row and 2 columns
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.set_size_inches(18, 7)
 
-    #ax1.set_ylim([0, len(dataframe) + (n_clusters + 1) * 10])
+        # The 1st subplot is the silhouette plot
+        # The silhouette coefficient can range from -1, 1 but in this example all
+        # lie within [-0.1, 1]
+        ax1.set_xlim([-0.1, 1])
+        # The (n_clusters+1)*10 is for inserting blank space between silhouette
+        # plots of individual clusters, to demarcate them clearly.
 
-    # Initialize the clusterer with n_clusters value and a random generator
-    cluster_labels = clusterer.fit_predict(dataframe)
+        #ax1.set_ylim([0, len(dataframe) + (n_clusters + 1) * 10])
 
-    # The silhouette_score gives the average value for all the samples.
-    # This gives a perspective into the density and separation of the formed
-    # clusters
-    silhouette_avg = silhouette_score(dataframe, cluster_labels)
-    print("For n_clusters =", n_clusters,
-            "The average silhouette_score is :", silhouette_avg)
+        # Initialize the clusterer with n_clusters value and a random generator
+        cluster_labels = clusterer.fit_predict(dataframe)
 
-    # Compute the silhouette scores for each sample
-    sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
+        # The silhouette_score gives the average value for all the samples.
+        # This gives a perspective into the density and separation of the formed
+        # clusters
+        silhouette_avg = silhouette_score(dataframe, cluster_labels)
+        print("For clusters =", cluster,
+                "The average silhouette_score is :", silhouette_avg)
 
-    y_lower = 10
-    for i in range(n_clusters):
-        # Aggregate the silhouette scores for samples belonging to
-        # cluster i, and sort them
-        ith_cluster_silhouette_values = \
-            sample_silhouette_values[cluster_labels == i]
+        # Compute the silhouette scores for each sample
+        sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
 
-        ith_cluster_silhouette_values.sort()
+        y_lower = 10
+        for i in range(cluster):
+            # Aggregate the silhouette scores for samples belonging to
+            # cluster i, and sort them
+            ith_cluster_silhouette_values = \
+                sample_silhouette_values[cluster_labels == i]
 
-        size_cluster_i = ith_cluster_silhouette_values.shape[0]
-        y_upper = y_lower + size_cluster_i
+            ith_cluster_silhouette_values.sort()
 
-        color = cm.spectral(float(i) / n_clusters)
-        ax1.fill_betweenx(np.arange(y_lower, y_upper),
-                            0, ith_cluster_silhouette_values,
-                            facecolor=color, edgecolor=color, alpha=0.7)
+            size_cluster_i = ith_cluster_silhouette_values.shape[0]
+            y_upper = y_lower + size_cluster_i
 
-        # Label the silhouette plots with their cluster numbers at the middle
-        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+            color = cm.spectral(float(i) / clusters)
+            ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                                0, ith_cluster_silhouette_values,
+                                facecolor=color, edgecolor=color, alpha=0.7)
 
-        # Compute the new y_lower for next plot
-        y_lower = y_upper + 10  # 10 for the 0 samples
+            # Label the silhouette plots with their cluster numbers at the middle
+            ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
 
-    ax1.set_title("The silhouette plot for the various clusters.")
-    ax1.set_xlabel("The silhouette coefficient values")
-    ax1.set_ylabel("Cluster label")
+            # Compute the new y_lower for next plot
+            y_lower = y_upper + 10  # 10 for the 0 samples
 
-    # The vertical line for average silhoutte score of all the values
-    ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
+        ax1.set_title("The silhouette plot for the various clusters.")
+        ax1.set_xlabel("The silhouette coefficient values")
+        ax1.set_ylabel("Cluster label")
 
-    ax1.set_yticks([])  # Clear the yaxis labels / ticks
-    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+        # The vertical line for average silhoutte score of all the values
+        ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
 
-    # 2nd Plot showing the actual clusters formed
-    colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
-    ax2.scatter(dataframe[:, 0], dataframe[:, 1], marker='.', s=30, lw=0, alpha=0.7,
-                c=colors)
+        ax1.set_yticks([])  # Clear the yaxis labels / ticks
+        ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
-    if hasattr(clusterer, 'cluster_centers_'):
-        # Labeling the clusters
-        centers = clusterer.cluster_centers_
-        # Draw white circles at cluster centers
-        ax2.scatter(centers[:, 0], centers[:, 1],
-                    marker='o', c="white", alpha=1, s=200)
+        # 2nd Plot showing the actual clusters formed
+        colors = cm.spectral(cluster_labels.astype(float) / cluster)
+        ax2.scatter(dataframe[:, 0], dataframe[:, 1], marker='.', s=30, lw=0, alpha=0.7,
+                    c=colors)
 
-        for i, c in enumerate(centers):
-            ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
+        if hasattr(clusterer, 'cluster_centers_'):
+            # Labeling the clusters
+            centers = clusterer.cluster_centers_
+            # Draw white circles at cluster centers
+            ax2.scatter(centers[:, 0], centers[:, 1],
+                        marker='o', c="white", alpha=1, s=200)
 
-    ax2.set_title("The visualization of the clustered data.")
-    ax2.set_xlabel("Feature space for the 1st feature")
-    ax2.set_ylabel("Feature space for the 2nd feature")
+            for i, c in enumerate(centers):
+                ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
 
-    plt.suptitle(("Silhouette analysis for %s clustering on sample data "
-                    "with n_clusters = %d" % (cluster_type, n_clusters)),
-                    fontsize=14, fontweight='bold')
+        ax2.set_title("The visualization of the clustered data.")
+        ax2.set_xlabel("Feature space for the 1st feature")
+        ax2.set_ylabel("Feature space for the 2nd feature")
 
-    plt.show()
+        plt.suptitle(("Silhouette analysis for %s clustering on sample data "
+                        "with clusters = %d" % (cluster_type, cluster)),
+                        fontsize=14, fontweight='bold')
+
+        plt.show()
