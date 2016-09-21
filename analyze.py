@@ -203,17 +203,16 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     if not n_clusters:
         n_clusters = range(2, 8, 2)
     dataframe = dataframe.as_matrix()
-    cluster_scores_df = pd.DataFrame(names=['cluster_size', 'silhouette_score'])
+    cluster_scores_df = pd.DataFrame(columns=['cluster_size', 'silhouette_score'])
     # Silhouette analysis --
     #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
     #TODO: Add more clustering methods/types like say dbscan and others
 
-    for cluster in n_clusters:
+    for j, cluster in enumerate(n_clusters):
         if cluster_type == 'KMeans':
             assert n_clusters, "Number of clusters argument mandatory"
-            cluster_callable = KMeans
             # seed of 10 for reproducibility.
-            clusterer = cluster_callable(n_clusters=cluster, random_state=10)
+            clusterer = KMeans(n_clusters=cluster, random_state=10)
         elif cluster_type == 'spectral':
             assert n_clusters, "Number of clusters argument mandatory"
             clusterer = SpectralClustering(n_clusters=cluster,
@@ -241,7 +240,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # This gives a perspective into the density and separation of the formed
         # clusters
         silhouette_avg = silhouette_score(dataframe, cluster_labels)
-        cluster_scores_df.loc[i] = [cluster, silhouette_avg]
+        cluster_scores_df.loc[j] = [cluster, silhouette_avg]
         print("For clusters =", cluster,
                 "The average silhouette_score is :", silhouette_avg)
 
@@ -260,7 +259,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
             size_cluster_i = ith_cluster_silhouette_values.shape[0]
             y_upper = y_lower + size_cluster_i
 
-            color = cm.spectral(float(i) / clusters)
+            color = cm.spectral(float(i) / len(n_clusters))
             ax1.fill_betweenx(np.arange(y_lower, y_upper),
                                 0, ith_cluster_silhouette_values,
                                 facecolor=color, edgecolor=color, alpha=0.7)
