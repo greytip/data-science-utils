@@ -5,6 +5,20 @@ from sqlalchemy import create_engine, MetaData, Table
 import numpy as np
 import scipy
 
+class ProbDist(dict):
+    """
+			Taken from norvig: http://nbviewer.jupyter.org/url/norvig.com/ipython/Probability.ipynb
+			input: A dict of {<event_id_or_name>: <frequency>}
+			return: A Probability Distribution; an {outcome: probability} mapping.
+	"""
+    def __init__(self, mapping=(), **kwargs):
+        self.update(mapping, **kwargs)
+        # Make probabilities sum to 1.0; assert no negative probabilities
+        total = sum(self.values())
+        for outcome in self:
+            self[outcome] = self[outcome] / total
+            assert self[outcome] >= 0
+
 def init_board_gauss(N, k):
     """
     Taken from https://datasciencelab.wordpress.com/2013/12/12/clustering-with-k-means-in-python/
@@ -55,15 +69,13 @@ def pairwise(seq):
     next(b, None)
     return zip(a, b)
 
-def leave_trans_freq_dist(conn, binsize=10):
+
+def values_dist(vals, binsize=10):
     """
-    Return a simple frequency distribution of leave transaction counts
+    Return a simple frequency distribution of a given list
     """
-    vals = conn.execute('select tcount from dv.apx_leave_trans_count;').fetchall()
     if not vals:
         vals = [0]
-    else:
-        vals = vals[0]
 
     x = np.sort(np.asarray(vals))
 
