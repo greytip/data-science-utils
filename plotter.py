@@ -9,6 +9,15 @@ from math import ceil
 
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
 
+def lineplot(df, xcol, ycol, title=None):
+    if not title:
+        title = "%s Vs %s" %(xcol, ycol)
+    p1 = figure(x_axis_type=df[xcol].dtype[0], title=title)
+    p1.grid.grid_line_alpha=0.3
+    p1.line(df[xcol], df[ycol], color='#A6CEE3', legend=ycol)
+    p1.legend.location = "top_left"
+    show(p1, plot_width=400, plot_height=400)
+
 def show_image(image):
     from bokeh.plotting import figure, show
     p = figure(x_range=(0,image.shape[0]), y_range=(0,image.shape[1]))

@@ -1,3 +1,4 @@
+import pandas as pd
 import plotter
 import itertools
 import matplotlib.pyplot as plt
@@ -198,12 +199,11 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     import matplotlib.cm as cm
     import numpy as np
     import collections
-
     assert isinstance(n_clusters, collections.Iterable), "n_clusters must be an iterable object"
     if not n_clusters:
         n_clusters = range(2, 8, 2)
     dataframe = dataframe.as_matrix()
-
+    cluster_scores_df = pd.DataFrame(names=['cluster_size', 'silhouette_score'])
     # Silhouette analysis --
     #       http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
     #TODO: Add more clustering methods/types like say dbscan and others
@@ -241,6 +241,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # This gives a perspective into the density and separation of the formed
         # clusters
         silhouette_avg = silhouette_score(dataframe, cluster_labels)
+        cluster_scores_df.loc[i] = [cluster, silhouette_avg]
         print("For clusters =", cluster,
                 "The average silhouette_score is :", silhouette_avg)
 
@@ -304,3 +305,5 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
                         fontsize=14, fontweight='bold')
 
         plt.show()
+
+    plotter.lineplot(cluster_scores_df, xcol='cluster_size', ycol='silhouette_score')
