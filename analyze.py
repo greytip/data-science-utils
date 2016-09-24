@@ -308,13 +308,17 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     plotter.lineplot(cluster_scores_df, xcol='cluster_size', ycol='silhouette_score')
 
 def som_analyze(dataframe, mapsize):
-    import sompy as SOM
-    som_factory = SOM.SOMFactory()
+    import sompy
+    som_factory = sompy.SOMFactory()
     data = dataframe.as_matrix()
     assert isinstance(mapsize, tuple), "Mapsize must be a tuple"
     sm = som_factory.build(data, mapsize= mapsize, normalization='var', initialization='pca')
     sm.train(n_job=6, shared_memory='no', verbose='INFO')
-    v = SOM.mapview.View2DPacked(50, 50, 'test',text_size=8)
-    # could be done in a one-liner:
-    #SOM.mapview.View2DPacked(300, 300, 'test').show(sm)
-    v.show(sm, what='codebook', which_dim=[0,1], col_sz=6)
+
+    # View map
+    v = sompy.mapview.View2DPacked(50, 50, 'test',text_size=8)
+    v.show(sm, what='codebook', cmap=None, col_sz=6) #which_dim=[0,1],
+
+    # Hitmap
+    h = sompy.hitmap.HitMapView(10, 10, 'hitmap', text_size=8, show_text=True)
+    h.show(sm)
