@@ -16,7 +16,7 @@ def get_figures_and_combos(combos):
     return figures, combo_lists
 
 def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
-	# TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
+    # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
     import numpy as np
     from bokeh.plotting import show
 
@@ -326,12 +326,10 @@ def som_analyze(dataframe, mapsize, algo_type='som'):
         h.show(sm)
 
     elif algo_type == 'umatrix':
-	#But Umatrix finds the clusters easily
-	u = sompy.umatrix.UMatrixView(50, 50, 'umatrix', show_axis=True, text_size=8, show_text=True)
-
-	#This is the Umat value
-	UMAT  = u.build_u_matrix(som, distance=1, row_normalized=False)
-	u.show(som, distance2=1, row_normalized=False, show_data=True, contooor=False, blob=False)
-
+        #But Umatrix finds the clusters easily
+        u = sompy.umatrix.UMatrixView(50, 50, 'umatrix', show_axis=True, text_size=8, show_text=True)
+        #This is the Umat value
+        UMAT  = u.build_u_matrix(som, distance=1, row_normalized=False)
+        u.show(som, distance2=1, row_normalized=False, show_data=True, contooor=False, blob=False)
     else:
         raise "Unknown SOM algorithm type"
