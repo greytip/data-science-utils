@@ -307,18 +307,31 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
 
     plotter.lineplot(cluster_scores_df, xcol='cluster_size', ycol='silhouette_score')
 
-def som_analyze(dataframe, mapsize):
+def som_analyze(dataframe, mapsize, algo_type='som'):
     import sompy
     som_factory = sompy.SOMFactory()
     data = dataframe.as_matrix()
     assert isinstance(mapsize, tuple), "Mapsize must be a tuple"
     sm = som_factory.build(data, mapsize= mapsize, normalization='var', initialization='pca')
-    sm.train(n_job=6, shared_memory='no', verbose='INFO')
+    if algo_type == 'som':
+        sm.train(n_job=6, shared_memory='no', verbose='INFO')
 
-    # View map
-    v = sompy.mapview.View2DPacked(50, 50, 'test',text_size=8)
-    v.show(sm, what='codebook', cmap=None, col_sz=6) #which_dim=[0,1],
+        # View map
+        v = sompy.mapview.View2DPacked(50, 50, 'test',text_size=8)
+        v.show(sm, what='codebook', cmap='jet', col_sz=6) #which_dim=[0,1]
+        v.show(sm, what='cluster', cmap='jet', col_sz=6) #which_dim=[0,1] defaults to 'all',
 
-    # Hitmap
-    h = sompy.hitmap.HitMapView(10, 10, 'hitmap', text_size=8, show_text=True)
-    h.show(sm)
+        # Hitmap
+        h = sompy.hitmap.HitMapView(10, 10, 'hitmap', text_size=8, show_text=True)
+        h.show(sm)
+
+    elif algo_type == 'umatrix':
+	#But Umatrix finds the clusters easily
+	u = sompy.umatrix.UMatrixView(50, 50, 'umatrix', show_axis=True, text_size=8, show_text=True)
+
+	#This is the Umat value
+	UMAT  = u.build_u_matrix(som, distance=1, row_normalized=False)
+	u.show(som, distance2=1, row_normalized=False, show_data=True, contooor=False, blob=False)
+
+    else:
+        raise "Unknown SOM algorithm type"
