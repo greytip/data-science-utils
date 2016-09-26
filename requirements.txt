@@ -1,3 +1,4 @@
+sompy
 scipy
 bokeh
 seaborn
