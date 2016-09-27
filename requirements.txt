@@ -1,13 +1,15 @@
-sompy
-scipy
 bokeh
-seaborn
-pandas
-scikit-learn
-numpy
 jupyter
 matplotlib
-sqlalchemy
+numpy
 psycopg2
+pandas
+seaborn
+sqlalchemy
+scikit-learn
+sompy
+scipy
+theano
+
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy

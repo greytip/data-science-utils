@@ -15,7 +15,7 @@ def get_figures_and_combos(combos):
         combo_lists.append(each)
     return figures, combo_lists
 
-def correlation_analyze(df, exclude_columns = None, categories=[], measure=None):
+def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
     import numpy as np
     from bokeh.plotting import show
