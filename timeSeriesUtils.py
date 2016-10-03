@@ -38,7 +38,7 @@ def plot_autocorrelation(timeseries_df, valueCol=None,
     import statsmodels.api as sm
     fig = plt.figure(figsize=(12,8))
     ax1 = fig.add_subplot(111)
-    if partial:
+    if not partial:
         subplt = sm.graphics.tsa.plot_acf(timeseries_df[valueCol].squeeze(), lags=40, ax=ax1)
     else:
         subplt = sm.graphics.tsa.plot_pacf(timeseries_df[valueCol], lags=40, ax=ax1)
