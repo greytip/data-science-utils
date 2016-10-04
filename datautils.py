@@ -45,16 +45,6 @@ def dataload(conn_or_session, table_name=None, custom_sql=None, preprocess_func=
             return preprocess_func(pd.read_sql("SELECT * FROM %s;"%(table_name),
                                                         chunksize=batch_size))
 
-def preprocess_verticals(df):
-    df = preprocess(df)
-    rev_verticals = dict()
-    for k,v in verticals.items():
-        for val in v:
-            rev_verticals.update({val:k})
-    for key in rev_verticals:
-        df['v_account_summary'].replace(key, rev_verticals[key],inplace=True)
-    return df
-
 if __name__ == '__main__':
     conn = create_engine(settings.local_db_url, execution_options=dict(stream_results=True))
     tables = ['apx_active_services_info']
