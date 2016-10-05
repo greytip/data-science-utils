@@ -116,6 +116,19 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
         mod = sm.tsa.statespace.SARIMAX(df.riders, trend='n', order=(0,1,0), seasonal_order=(1,1,1,12))
         return mod
 
+    elif modelType == 'sgd':
+        # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
+        from sklearn.linear_model import SGDClassifier
+        sgd = SGDClassifier()
+        return sgd
+
+    elif modelType == 'perceptron':
+        from sklearn.linear_model import Perceptron
+        perceptron = Perceptron()
+        return perceptron
+    elif modelType == 'xgboost':
+        import xgboost as xgb
+
     else:
         raise ''
         pass
