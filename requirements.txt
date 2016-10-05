@@ -13,6 +13,7 @@ theano
 pattern
 keras
 milk
+CHAID
 
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
