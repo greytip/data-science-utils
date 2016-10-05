@@ -335,3 +335,10 @@ def som_analyze(dataframe, mapsize, algo_type='som'):
         u.show(som, distance2=1, row_normalized=False, show_data=True, contooor=False, blob=False)
     else:
         raise "Unknown SOM algorithm type"
+
+def chaid_tree(dataframe, targetCol):
+    import CHAID as ch
+    columns = dataframe.columns
+    columns = list(filter(lambda x: x not in [targetCol], dataframe.columns))
+    print(ch.Tree.from_pandas_df(dataframe, columns, targetCol))
+    pass

@@ -33,11 +33,6 @@ from sqlalchemy import create_engine
 
 # In[ ]:
 
-import sompy
-
-
-# In[ ]:
-
 df = pd.read_csv('./data/Iris.csv')
 
 
@@ -96,4 +91,16 @@ analyze.cluster_analyze(df, cluster_type='dbscan')
 # In[ ]:
 
 analyze.som_analyze(df, (30,30), algo_type='som')
+
+
+# In[ ]:
+
+df.columns
+
+
+# In[ ]:
+
+#new_df =df.copy(deep=True)
+#new_df.drop('Id', 1, inplace=True)
+analyze.chaid_tree(df, 'y_pred')
 
