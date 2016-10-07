@@ -1,3 +1,5 @@
+from collections import defaultdict
+from sklearn.preprocessing import LabelEncoder
 
 def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
     """
@@ -50,7 +52,6 @@ def load_latest_model(foldername, modelType='knn'):
     return joblib.load(os.path.join(foldername,latest_model))
 
 class MultiColumnLabelEncoder:
-    from sklearn.preprocessing import LabelEncoder
     def __init__(self,columns = None):
         self.encoders = defaultdict(LabelEncoder)
         if columns:
