@@ -7,6 +7,9 @@
 import plotter
 import analyze
 
+# Parallelism stuff..
+from IPython.parallel import Client
+client = Client()
 
 # Standard libraries
 get_ipython().magic('load_ext autoreload')
