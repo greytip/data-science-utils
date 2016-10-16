@@ -10,8 +10,7 @@ scikit-learn
 sompy
 scipy
 datascience
-datasciencebox
-datascience_tools
+#datasciencebox
 
 theano
 pattern
