@@ -9,6 +9,10 @@ sqlalchemy
 scikit-learn
 sompy
 scipy
+datascience
+datasciencebox
+
+
 theano
 pattern
 keras
