@@ -11,7 +11,7 @@ sompy
 scipy
 datascience
 datasciencebox
-
+datascience_tools
 
 theano
 pattern
