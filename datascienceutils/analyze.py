@@ -1,10 +1,9 @@
 import pandas as pd
-import plotter
 import itertools
 import matplotlib.pyplot as plt
-
-
 import numpy as np
+
+from . import plotter
 
 def chunks(combos, size=9):
     for i in range(0, len(combos), size):
@@ -66,7 +65,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
 def regression_analyze(df, col1, col2, trainsize=0.8):
     """
     """
-    import sklearnUtils as sku
+    from . import sklearnUtils as sku
 
     from sklearn.cross_validation import cross_val_predict, train_test_split, cross_val_score
     import matplotlib.pyplot as plt
@@ -92,7 +91,7 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
                          skip_stationarity=False,
                          skip_autocorrelation=False,
                          skip_seasonal_decompose=False, **kwargs):
-    import timeSeriesUtils as tsu
+    from . import timeSeriesUtils as tsu
     if 'create' in kwargs:
         ts = tsu.create_timeseries_df(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs.get('create'))
     else:
@@ -341,4 +340,3 @@ def chaid_tree(dataframe, targetCol):
     columns = dataframe.columns
     columns = list(filter(lambda x: x not in [targetCol], dataframe.columns))
     print(ch.Tree.from_pandas_df(dataframe, columns, targetCol))
-    pass

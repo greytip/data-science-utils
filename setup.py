@@ -91,11 +91,11 @@ def get_version_info():
     FULLVERSION = VERSION
     if os.path.exists('.git'):
         GIT_REVISION = git_version()
-    elif os.path.exists('scipy/version.py'):
+    elif os.path.exists('datascienceutils/version.py'):
         # must be a source distribution, use existing version file
         # load it as a separate module to not load scipy/__init__.py
         import imp
-        version = imp.load_source('scipy.version', 'scipy/version.py')
+        version = imp.load_source('datascienceutils.version', 'datascienceutils/version.py')
         GIT_REVISION = version.git_revision
     else:
         GIT_REVISION = "Unknown"
