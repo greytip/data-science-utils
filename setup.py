@@ -145,23 +145,6 @@ if HAVE_SPHINX:
             BuildDoc.run(self)
 
 
-
-def configuration(parent_package='', top_path=None):
-    from numpy.distutils.misc_util import Configuration
-    config = Configuration(None, parent_package, top_path)
-    config.set_options(ignore_setup_xxx_py=True,
-                       assume_default_configuration=True,
-                       delegate_options_to_subpackages=True,
-                       quiet=True)
-
-    config.add_subpackage('scipy')
-    config.add_data_files(('scipy', '*.txt'))
-
-    config.get_version('scipy/version.py')
-
-    return config
-
-
 def setup_package():
 
     try:
@@ -209,7 +192,6 @@ def setup_package():
             import setuptools
 
         cwd = os.path.abspath(os.path.dirname(__file__))
-        metadata['configuration'] = configuration
 
     setup(**metadata)
 
