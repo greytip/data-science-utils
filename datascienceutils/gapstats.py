@@ -1,6 +1,7 @@
 #  Taken from https://datasciencelab.wordpress.com/2013/12/12/clustering-with-k-means-in-python/
 
 import numpy as np
+import random
 
 def cluster_points(X, mu):
     clusters  = {}
@@ -21,7 +22,7 @@ def reevaluate_centers(mu, clusters):
     return newmu
 
 def has_converged(mu, oldmu):
-    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu])
+    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu]))
 
 def find_centers(X, K):
     # Initialize to K random centers
@@ -48,15 +49,15 @@ def gap_statistic(X):
     (xmin,xmax), (ymin,ymax) = bounding_box(X)
     # Dispersion for real distribution
     ks = range(1,10)
-    Wks = zeros(len(ks))
-    Wkbs = zeros(len(ks))
-    sk = zeros(len(ks))
+    Wks = np.zeros(len(ks))
+    Wkbs =np.zeros(len(ks))
+    sk = np.zeros(len(ks))
     for indk, k in enumerate(ks):
         mu, clusters = find_centers(X,k)
         Wks[indk] = np.log(Wk(mu, clusters))
         # Create B reference datasets
         B = 10
-        BWkbs = zeros(B)
+        BWkbs = np.zeros(B)
         for i in range(B):
             Xb = []
             for n in range(len(X)):

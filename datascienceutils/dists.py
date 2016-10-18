@@ -1,9 +1,12 @@
 from collections import defaultdict
 from itertools import tee
-from sqlalchemy import create_engine, MetaData, Table
 
 import numpy as np
+import random
 import scipy
+
+from sqlalchemy import create_engine, MetaData, Table
+
 
 class ProbDist(dict):
     """
