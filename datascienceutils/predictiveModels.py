@@ -104,6 +104,10 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
         else:
             log_reg.fit(dataframe, target)
         return log_reg
+    elif modelType == 'kde':
+         from sklearn.neighbors.kde import import KernelDensity
+         kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(dataframe)
+         return kde
 
     elif modelType == 'AR':
         import statsmodels.api as sm
