@@ -4,8 +4,8 @@
 # In[ ]:
 
 # Custom libraries
-import plotter
-import analyze
+from datascienceutils import plotter
+from datascienceutils import analyze
 
 
 # Standard libraries
