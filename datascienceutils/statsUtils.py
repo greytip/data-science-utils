@@ -1,6 +1,6 @@
 import statsmodels.api as sm
 
-from scipy.stats import import chi2
+from scipy.stats import chi2
 #print(chi2.cdf(ch, num_sides-1), chi2.sf(ch, num_sides-1))
 
 def chisq_stat(O, E):
