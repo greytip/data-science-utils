@@ -36,8 +36,8 @@ def constant_width_file_sampler(filename, k):
     with open(filename, 'rb') as f:
         f.seek(0, 2)
         filesize = f.tell()
-        random_set = sorted(random.sample(xrange(filesize), k))
-        for i in xrange(k):
+        random_set = sorted(random.sample(range(filesize), k))
+        for i in range(k):
             f.seek(random_set[i])
             # Skip current line (because we might be in the middle of a line)
             f.readline()
@@ -47,13 +47,14 @@ def constant_width_file_sampler(filename, k):
 
 
 def reservoir_sample_stream(filename, n):
+    import io
     res = []
     with io.open(filename, 'r') as stream:
     	for i, el in enumerate(stream):
     	    if i <= n:
     	        res.append(el)
     	    else:
-    	        rand = random.sample(xrange(i), 1)[0]
+    	        rand = random.sample(range(i), 1)[0]
     	        if rand < n:
-    	            res[random.sample(xrange(n), 1)[0]] = el
+    	            res[random.sample(range(n), 1)[0]] = el
     return res
