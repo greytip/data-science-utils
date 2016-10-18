@@ -165,7 +165,7 @@ def setup_package():
     metadata = dict(
         name='datascienceutils',
         version=get_version_info()[0],
-        py_modules=['datascienceutils'],
+        packages=['datascienceutils'],
         maintainer="Software Mechanic",
         maintainer_email="softwaremechanic32@gmail.com",
         description=DOCLINES[0],

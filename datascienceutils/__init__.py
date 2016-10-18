@@ -1,3 +1,3 @@
-import sys
-from . import plotter
 from . import sklearnUtils
+from . import analyze
+__all__ = [analyze, sklearnUtils]
