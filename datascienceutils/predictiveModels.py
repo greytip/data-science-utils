@@ -72,14 +72,14 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False):
 
     elif modelType=='randomForest':
         from sklearn.ensemble import RandomForestClassifier
-        rfc = RandomForestClassifier(random_state=234)
+        rfc = RandomForestClassifier(random_state=234, **kwargs)
         if cross_val:
             return rfc
         rfc.fit(dataframe, target)
         return rfc
 
     elif modelType == 'votingClass':
-        tVC = trainVotingClassifier(dataframe, target)
+        tVC = trainVotingClassifier(dataframe, target, **kwargs)
         return tVC
 
     elif modelType == 'linearRegression':
