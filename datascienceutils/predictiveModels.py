@@ -20,7 +20,7 @@ def predictVotingClassify(model, dataframe):
                                 #in (clf1, clf2, clf3, eclf)]
 
 
-def train(dataframe, target, column=None, modelType='knn', cross_val=False):
+def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kwargs):
     """
     Generic training wrapper around different scikits-learn models
 
