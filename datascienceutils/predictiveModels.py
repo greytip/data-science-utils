@@ -34,7 +34,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         Model object
     """
 
-    if modelType =='knn':
+    if modelType == 'knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
         knn = KNeighborsClassifier(n_neighbors=6)
@@ -43,7 +43,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         knn.fit(dataframe, target)
         return knn
 
-    elif modelType=='gaussianNB':
+    elif modelType == 'gaussianNB':
         from sklearn.naive_bayes import GaussianNB
         gnb = GaussianNB()
         if cross_val:
@@ -51,7 +51,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         gnb.fit(dataframe, target)
         return gnb
 
-    elif modelType=='multinomialNB':
+    elif modelType == 'multinomialNB':
         from sklearn.naive_bayes import MultinomialNB
         # TODO: figure out how to configure binomial distribution
         mnb = MultinomialNB()
@@ -60,7 +60,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         mnb.fit(dataframe, target)
         return mnb
 
-    elif modelType=='bernoulliNB':
+    elif modelType == 'bernoulliNB':
         from sklearn.naive_bayes import BernoulliNB
         bnb = BernoulliNB()
         if cross_val:
@@ -68,13 +68,19 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         bnb.fit(dataframe, target)
         return bnb
 
-    elif modelType=='randomForest':
+    elif modelType == 'randomForest':
         from sklearn.ensemble import RandomForestClassifier
         rfc = RandomForestClassifier(random_state=234, **kwargs)
         if cross_val:
             return rfc
         rfc.fit(dataframe, target)
         return rfc
+
+    elif modelType == 'svm':
+        from sklearn.svm import import SVC
+        svc = SVC(random_state=0, probability=True)
+        svc.fit(dataframe, target)
+        return svc
 
     elif modelType == 'votingClass':
         tVC = trainVotingClassifier(dataframe, target, **kwargs)
