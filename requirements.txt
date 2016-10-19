@@ -7,13 +7,12 @@ pandas
 seaborn
 sqlalchemy
 scikit-learn
-sompy
 scipy
 datascience
 #datasciencebox
 
 theano
-pattern
+#pattern
 keras
 milk
 CHAID
