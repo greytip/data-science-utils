@@ -77,7 +77,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         return rfc
 
     elif modelType == 'svm':
-        from sklearn.svm import import SVC
+        from sklearn.svm import SVC
         svc = SVC(random_state=0, probability=True)
         svc.fit(dataframe, target)
         return svc
