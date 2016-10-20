@@ -37,14 +37,12 @@ Operating System :: Microsoft :: Windows
 Operating System :: POSIX
 Operating System :: Unix
 Operating System :: MacOS
-Operating System :: Ubuntu
-Operating System :: GNU/Linux
 
 """
 
 MAJOR = 1
 MINOR = 0
-MICRO = 8
+MICRO = 11
 ISRELEASED = True
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 

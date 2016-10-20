@@ -47,18 +47,21 @@ def constant_width_file_sampler(filename, sampleSize):
 
 def file_split(filename, sampleSize=50000, k=20):
     fname, ext = filename.split('.')
-    for i in range(k):
-        with io.open(filename, 'rb') as stream:
-            stream.seek(0, 2)
-            for i, line in enumerate(stream):
-                if i==0: header = line
-                if (i < sampleSize * (i+1)):
-                    res.append(el)
-                else:
-                    continue
-        new_fnam = '_'.join([fname, 'sample', str(i), '.', ext])
-        with io.open(new_fnam, 'w') as fd:
-            fd.write(res)
+    with io.open(filename, 'rb') as stream:
+        header = stream.readline()
+        for i in range(k):
+            res = [header]
+            #stream.seek(0, i*sampleSize)
+            j = 0
+            while j < sampleSize:
+                line = stream.readline()
+                # Skip a line since we may be in the middle of a line
+                line = stream.readline()
+                res.append(line)
+                j += 1
+            new_fnam = '_'.join([fname, 'sample', str(i) + '.']) + ext
+            with io.open(new_fnam, 'w') as fd:
+                fd.write('\n'.join(list(map(str, res))))
 
 def reservoir_sample_stream(filename, sampleSize):
     res = []
@@ -71,3 +74,7 @@ def reservoir_sample_stream(filename, sampleSize):
     	        if rand < sampleSize:
     	            res[random.sample(range(sampleSize), 1)[0]] = el
     return res
+
+
+if __name__ == '__main__':
+    file_split('/home/anand/DataScientist/kaggle/bosch/data/train_numeric.csv', sampleSize=100000, k=12)
