@@ -1,6 +1,7 @@
 from random import gauss, triangular, choice, vonmisesvariate, uniform
 from statistics import mean
 
+import csv
 import io
 import random
 import sys
@@ -48,20 +49,25 @@ def constant_width_file_sampler(filename, sampleSize):
 def file_split(filename, sampleSize=50000, k=20):
     fname, ext = filename.split('.')
     with io.open(filename, 'rb') as stream:
-        header = stream.readline()
+        header = str(stream.readline())
+        headers = header.split(',')
         for i in range(k):
-            res = [str(header) + '\n']
-            #stream.seek(0, i*sampleSize)
+            res = []
+            #header
             j = 0
             while j < sampleSize:
                 line = stream.readline()
                 # Skip a line since we may be in the middle of a line
-                line = stream.readline()
-                res.append(str(line) + '\n')
+                line = str(stream.readline())
+                line = line.split(',')
+                res.append(line)
                 j += 1
             new_fnam = '_'.join([fname, 'sample', str(i) + '.']) + ext
-            with io.open(new_fnam, 'w') as fd:
-                fd.writelines(list(map(str, res)))
+            with open(new_fnam, 'w', newline='') as fd:
+                writer = csv.writer(fd, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+                                    #lineterminator='\n')
+                writer.writerow(headers)
+                writer.writerows(res)
 
 def reservoir_sample_stream(filename, sampleSize):
     res = []
