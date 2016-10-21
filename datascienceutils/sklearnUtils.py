@@ -1,3 +1,5 @@
+import copy
+
 from collections import defaultdict
 from sklearn.preprocessing import LabelEncoder
 
@@ -63,7 +65,7 @@ class MultiColumnLabelEncoder:
         return self # not relevant here
 
     def reverse_transform_all(self, X):
-        output = X.copy()
+        output = copy.deepcopy(X)
         if self.columns is not None:
             for col in self.columns:
                 output[col] = self.encoders[col].inverse_transform(output[col])
@@ -78,7 +80,7 @@ class MultiColumnLabelEncoder:
         LabelEncoder(). If no columns specified, transforms all
         columns in X.
         '''
-        output = X.copy()
+        output = copy.deepcopy(X)
         if self.columns is not None:
             for col in self.columns:
                 output[col] = self.encoders[col].fit_transform(output[col])
@@ -92,6 +94,7 @@ class MultiColumnLabelEncoder:
 
     def fit_transform(self,X,y=None):
         return self.fit(X,y).transform(X)
+
 
 
 def cross_val_predict_score(model, actuals, predictions):
