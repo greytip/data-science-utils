@@ -93,10 +93,10 @@ class MultiColumnLabelEncoder:
     def fit_transform(self,X,y=None):
         return self.fit(X,y).transform(X)
 
+
 def cross_val_predict_score(model, actuals, predictions):
     from sklearn.cross_validation import cross_val_predict
     return cross_val_predict(model, actuals, predictions)
-
 
 def accuracy_calc(actuals, predictions):
     from sklearn.metrics import accuracy_score
