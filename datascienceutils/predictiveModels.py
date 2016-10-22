@@ -138,7 +138,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         import xgboost as xgb
         gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300,
                                             learning_rate=0.05)\
-                                                .fit(dataframe, target, nthread=4)
+                                                .fit(dataframe, target)
         return gbm
 
     else:
