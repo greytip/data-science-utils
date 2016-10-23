@@ -1,6 +1,7 @@
 import copy
 
 from collections import defaultdict
+from sklearn.externals import joblib
 from sklearn.preprocessing import LabelEncoder
 
 def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
@@ -39,6 +40,9 @@ def dump_model(model, filename):
     from sklearn.externals import joblib
     joblib.dump(model, filename+ '.pkl')
 
+def load_model(filename):
+    return joblib.load(filename)
+
 def load_latest_model(foldername, modelType='knn'):
     """
     Parses through the files in the model folder and returns the latest model
@@ -46,7 +50,6 @@ def load_latest_model(foldername, modelType='knn'):
     """
     assert foldername, "Please pass in a foldername"
     import os, fnmatch
-    from sklearn.externals import joblib
     relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*.pkl'), os.listdir(foldername)))
     assert relevant_models, "no relevant models found"
     relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
