@@ -20,7 +20,7 @@ def predictVotingClassify(model, dataframe):
                                 #in (clf1, clf2, clf3, eclf)]
 
 
-def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kwargs):
+def train(dataframe, target, modelType, **kwargs):
     """
     Generic training wrapper around different scikits-learn models
 
@@ -28,7 +28,6 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         @dataframe: A pandas dataframe with all feature columns.
         @target: pandas series or numpy array(basically a iterable) with the target values. should match length with dataframe
         @modelType: String representing the model you want to train with
-        @cross_val: Boolean, if True returns the  model object (without training)for you to perform cross_valuation afterwards
 
     @return:
         Model object
@@ -38,16 +37,12 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
         knn = KNeighborsClassifier(n_neighbors=6)
-        if cross_val:
-            return knn
         knn.fit(dataframe, target)
         return knn
 
     elif modelType == 'gaussianNB':
         from sklearn.naive_bayes import GaussianNB
         gnb = GaussianNB()
-        if cross_val:
-            return gnb
         gnb.fit(dataframe, target)
         return gnb
 
@@ -55,24 +50,18 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         from sklearn.naive_bayes import MultinomialNB
         # TODO: figure out how to configure binomial distribution
         mnb = MultinomialNB()
-        if cross_val:
-            return mnb
         mnb.fit(dataframe, target)
         return mnb
 
     elif modelType == 'bernoulliNB':
         from sklearn.naive_bayes import BernoulliNB
         bnb = BernoulliNB()
-        if cross_val:
-            return bnb
         bnb.fit(dataframe, target)
         return bnb
 
     elif modelType == 'randomForest':
         from sklearn.ensemble import RandomForestClassifier
         rfc = RandomForestClassifier(random_state=234, **kwargs)
-        if cross_val:
-            return rfc
         rfc.fit(dataframe, target)
         return rfc
 
@@ -91,8 +80,6 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression()
-        if cross_val:
-            return l_reg
         if column:
             l_reg.fit(dataframe[column], target)
         else:
@@ -101,8 +88,6 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
 
     elif modelType == 'logisticRegression':
         log_reg = LogisticRegression(random_state=123)
-        if cross_val:
-            return l_reg
         if column:
             log_reg.fit(dataframe[column], target)
         else:
@@ -136,9 +121,7 @@ def train(dataframe, target, column=None, modelType='knn', cross_val=False, **kw
         return perceptron
     elif modelType == 'xgboost':
         import xgboost as xgb
-        gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300,
-                                            learning_rate=0.05)\
-                                                .fit(dataframe, target)
+        gbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)
         return gbm
 
     else:
