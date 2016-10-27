@@ -16,6 +16,17 @@ def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar')
     else:
         return None
 
+def feature_select(dataframe, target=None, selector='variance', **kwargs):
+    from sklearn.feature_selection import *
+    if selector=='variance':
+        selector = VarianceThreshold()
+        return selector.fit_transform(dataframe)
+    elif selector == 'SelectKBest':
+        assert target
+        return SelectKBest(chi2, k=2).fit_transform(dataframe, target)
+    else:
+        raise "Don't know this feature selector"
+
 def feature_standardize(dataframe, col_names):
     """
     In essence makes sure the column values obey-or-very close to the standard-z- distribution

@@ -123,9 +123,9 @@ if not release:
     a = open(filename, 'w')
     try:
         a.write(cnt % {'version': VERSION,
-                       'full_version': FULLVERSION,
-                       'git_revision': GIT_REVISION,
-                       'isrelease': str(ISRELEASED)})
+            'full_version': FULLVERSION,
+            'git_revision': GIT_REVISION,
+            'isrelease': str(ISRELEASED)})
     finally:
         a.close()
 
@@ -160,12 +160,12 @@ def setup_package():
     else:
         cmdclass = {}
 
-    build_requires = ['scikit-learn', 'xgboost', 'pandas', 'bokeh', 'matplotlib']
+    build_requires = ['scikit-learn', 'xgboost', 'bokeh', 'seaborn', 'pandas', 'matplotlib']
 
     metadata = dict(
-        name='datascienceutils',
-        version=get_version_info()[0],
-        packages=['datascienceutils'],
+            name='datascienceutils',
+            version=get_version_info()[0],
+            packages=['datascienceutils'],
         maintainer="Software Mechanic",
         maintainer_email="softwaremechanic32@gmail.com",
         description=DOCLINES[0],

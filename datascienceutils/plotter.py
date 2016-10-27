@@ -365,24 +365,18 @@ def sb_heatmap(df, label):
     # http://stanford.edu/~mwaskom/software/seaborn/
 
     import seaborn as sns
-    import matplotlib.pyplot as plt
     sns.set(style='white')
 
-    plt.figure(figsize=(12, 8))
-    plt.title(label)
     sns.heatmap(df.T, mask=df.T.isnull(), annot=True, fmt='.0%');
 
 def sb_violinplot(df,column):
     import seaborn as sns
-    import matplotlib.pyplot as plt
 
     # Compute the correlation matrix and average over networks
     corr_df = df.corr().groupby(level=column).mean()
     corr_df.index = corr_df.index.astype(int)
     corr_df = corr_df.sort_index().T
 
-    # Set up the matplotlib figure
-    f, ax = plt.subplots(figsize=(11, 6))
 
     # Draw a violinplot with a narrower bandwidth than the default
     sns.violinplot(data=corr_df, palette="Set3", bw=.2, cut=1, linewidth=1)
@@ -443,7 +437,6 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
     # Compute micro-average ROC curve and ROC area
     fpr["micro"], tpr["micro"], _ = roc_curve(target.ravel(), score.ravel())
     roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-    print(fpr.keys())
     if not multi_class:
         #assert target.shape[1] == 1, "Please pass a nx1 array"
         #assert target.nunique() == 1, "Please pass a nx1 array"
@@ -457,6 +450,7 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
         plt.ylabel('True Positive Rate')
         plt.title('Receiver operating characteristic example')
         plt.legend(loc="lower right")
+        plt.show()
         return plt
     else:
         # First aggregate all false positive rates
@@ -494,3 +488,4 @@ def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
         plt.title('Some extension of Receiver operating characteristic to multi-class')
         plt.legend(loc="lower right")
         plt.show()
+        return plt
