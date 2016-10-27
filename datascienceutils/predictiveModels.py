@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+
 def trainVotingClassifier(dataframe, target):
     from sklearn.linear_model import LogisticRegression
     from sklearn.naive_bayes import GaussianNB
@@ -19,6 +20,34 @@ def predictVotingClassify(model, dataframe):
     probas = [c.fit(dataframe, target).predict_proba(dataframe) for c in model.classifiers]
                                 #in (clf1, clf2, clf3, eclf)]
 
+
+def cross_val_train(dataframe, target, modelType, **kwargs):
+    cv = kwargs.pop('cv',None)
+    if modelType == 'knn':
+        from sklearn.neighbors import KNeighborsClassifier
+        #n= 6 seems to give the best trade-off between accuracy and precision
+        model = KNeighborsClassifier(**kwargs)
+
+    elif modelType == 'gaussianNB':
+        from sklearn.naive_bayes import GaussianNB
+        model = GaussianNB()
+
+    elif modelType == 'sgd':
+        # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
+        from sklearn.linear_model import SGDClassifier
+        model = SGDClassifier()
+
+    elif modelType == 'perceptron':
+        from sklearn.linear_model import Perceptron
+        model = Perceptron()
+    elif modelType == 'xgboost':
+        import xgboost as xgb
+        model = xgb.XGBClassifier(**kwargs)
+    else:
+        pass
+
+    scores = cross_val_score(model, dataframe, target, cv=cv)
+    return scores
 
 def train(dataframe, target, modelType, **kwargs):
     """
