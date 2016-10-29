@@ -2529,7 +2529,7 @@ AAAASUVORK5CYII=
 <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">analyze</span><span class="o">.</span><span class="n">som_analyze</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">algo_type</span><span class="o">=</span><span class="s">&#39;som&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span class="c">#analyze.som_analyze(df, (10,10), algo_type=&#39;som&#39;)</span>
 </pre></div>
 
 </div>
@@ -2544,57 +2544,6 @@ AAAASUVORK5CYII=
 <div class="output_subarea output_stream output_stderr output_text">
 <pre> Training...
 </pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">sompy</span>
-<span class="n">som_factory</span> <span class="o">=</span> <span class="n">sompy</span><span class="o">.</span><span class="n">SOMFactory</span><span class="p">()</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
-<span class="n">mapsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapsize</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">),</span> <span class="s">&quot;Mapsize must be a tuple&quot;</span>
-<span class="n">sm</span> <span class="o">=</span> <span class="n">som_factory</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mapsize</span><span class="o">=</span> <span class="n">mapsize</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="s">&#39;var&#39;</span><span class="p">,</span> <span class="n">initialization</span><span class="o">=</span><span class="s">&#39;pca&#39;</span><span class="p">)</span>
-<span class="n">sm</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">n_job</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">shared_memory</span><span class="o">=</span><span class="s">&#39;no&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="s">&#39;INFO&#39;</span><span class="p">)</span>
-
-<span class="c"># View map</span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">sompy</span><span class="o">.</span><span class="n">mapview</span><span class="o">.</span><span class="n">View2DPacked</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">text_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s">&#39;codebook&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;jet&#39;</span><span class="p">,</span> <span class="n">col_sz</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="c">#which_dim=[0,1]</span>
-<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s">&#39;cluster&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;jet&#39;</span><span class="p">,</span> <span class="n">col_sz</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="c">#which_dim=[0,1] defaults to &#39;all&#39;,</span>
-
-<span class="c"># Hitmap</span>
-<span class="n">h</span> <span class="o">=</span> <span class="n">sompy</span><span class="o">.</span><span class="n">hitmap</span><span class="o">.</span><span class="n">HitMapView</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&#39;hitmap&#39;</span><span class="p">,</span> <span class="n">text_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">show_text</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
-<span class="n">h</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">sm</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansired">---------------------------------------------------------------------------</span>
-<span class="ansired">NameError</span>                                 Traceback (most recent call last)
-<span class="ansigreen">&lt;ipython-input-7-77c77a0bffea&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
-<span class="ansigreen">      2</span> som_factory <span class="ansiyellow">=</span> sompy<span class="ansiyellow">.</span>SOMFactory<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
-<span class="ansigreen">      3</span> data <span class="ansiyellow">=</span> df<span class="ansiyellow">.</span>as_matrix<span class="ansiyellow">(</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
-<span class="ansigreen">----&gt; 4</span><span class="ansiyellow"> </span>mapsize<span class="ansiyellow">(</span><span class="ansicyan">10</span><span class="ansiyellow">,</span><span class="ansicyan">10</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
-<span class="ansigreen">      5</span> <span class="ansigreen">assert</span> isinstance<span class="ansiyellow">(</span>mapsize<span class="ansiyellow">,</span> tuple<span class="ansiyellow">)</span><span class="ansiyellow">,</span> <span class="ansiblue">&quot;Mapsize must be a tuple&quot;</span><span class="ansiyellow"></span>
-<span class="ansigreen">      6</span> sm <span class="ansiyellow">=</span> som_factory<span class="ansiyellow">.</span>build<span class="ansiyellow">(</span>data<span class="ansiyellow">,</span> mapsize<span class="ansiyellow">=</span> mapsize<span class="ansiyellow">,</span> normalization<span class="ansiyellow">=</span><span class="ansiblue">&apos;var&apos;</span><span class="ansiyellow">,</span> initialization<span class="ansiyellow">=</span><span class="ansiblue">&apos;pca&apos;</span><span class="ansiyellow">)</span><span class="ansiyellow"></span>
-
-<span class="ansired">NameError</span>: name &apos;mapsize&apos; is not defined</pre>
 </div>
 </div>
 

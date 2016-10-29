@@ -91,25 +91,5 @@ analyze.cluster_analyze(df, cluster_type='dbscan')
 
 # In[ ]:
 
-analyze.som_analyze(df, (10,10), algo_type='som')
-
-
-# In[7]:
-
-import sompy
-som_factory = sompy.SOMFactory()
-data = df.as_matrix()
-mapsize = (10,10)
-assert isinstance(mapsize, tuple), "Mapsize must be a tuple"
-sm = som_factory.build(data, mapsize= mapsize, normalization='var', initialization='pca')
-sm.train(n_job=6, shared_memory='no', verbose='INFO')
-
-# View map
-v = sompy.mapview.View2DPacked(50, 50, 'test',text_size=8)
-v.show(sm, what='codebook', cmap='jet', col_sz=6) #which_dim=[0,1]
-v.show(sm, what='cluster', cmap='jet', col_sz=6) #which_dim=[0,1] defaults to 'all',
-
-# Hitmap
-h = sompy.hitmap.HitMapView(10, 10, 'hitmap', text_size=8, show_text=True)
-h.show(sm)
+#analyze.som_analyze(df, (10,10), algo_type='som')
 
