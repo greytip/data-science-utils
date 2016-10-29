@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 # Custom libraries
 from datascienceutils import plotter
@@ -25,17 +25,12 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[ ]:
+# In[2]:
 
 df = pd.read_csv('./data/Iris.csv')
 
 
-# In[ ]:
-
-df.describe()
-
-
-# In[ ]:
+# In[3]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
@@ -48,22 +43,27 @@ def createClasses(x):
 df['Class'] = df['Species'].apply(createClasses)
 
 
-# In[ ]:
+# In[4]:
+
+df.describe()
+
+
+# In[5]:
 
 df.head()
 
 
-# In[ ]:
+# In[6]:
 
 df.corr()
 
 
-# In[ ]:
+# In[7]:
 
 df['Species'].unique()
 
 
-# In[ ]:
+# In[8]:
 
 analyze.correlation_analyze(df, exclude_columns='Id', categories=['Species', 'Class'], measure=['SepalLengthCm', 
                                                                                       'SepalWidthCm',
@@ -71,14 +71,13 @@ analyze.correlation_analyze(df, exclude_columns='Id', categories=['Species', 'Cl
                                                                                        'PetalWidthCm'])
 
 
-# In[ ]:
+# In[9]:
 
-df.columns
 target = df.Species
-df.drop('Species', 1, inplace=True)
+df.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[ ]:
+# In[10]:
 
 #analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
