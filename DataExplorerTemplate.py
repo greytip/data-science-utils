@@ -13,6 +13,7 @@ get_ipython().magic('matplotlib inline')
 
 import numpy as np
 import pandas as pd
+import random
 from sklearn import cross_validation
 from sklearn import metrics
 
@@ -25,45 +26,46 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[2]:
+# In[3]:
 
 df = pd.read_csv('./data/Iris.csv')
 
 
-# In[3]:
+# In[4]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
-    if x == 'Iris-setosa':
+    rdm = random.random()
+    if rdm < 0.3:
         return 'A'
-    elif x == 'Iris-versicolor':
-        return 'B'
+    elif rdm > 0.3 and rdm < 0.6:
+        return 'B' 
     else:
         return 'C'
 df['Class'] = df['Species'].apply(createClasses)
 
 
-# In[4]:
+# In[5]:
 
 df.describe()
 
 
-# In[5]:
+# In[6]:
 
 df.head()
 
 
-# In[6]:
+# In[7]:
 
 df.corr()
 
 
-# In[7]:
+# In[8]:
 
 df['Species'].unique()
 
 
-# In[8]:
+# In[9]:
 
 analyze.correlation_analyze(df, exclude_columns='Id', categories=['Species', 'Class'], measure=['SepalLengthCm', 
                                                                                       'SepalWidthCm',
@@ -71,13 +73,13 @@ analyze.correlation_analyze(df, exclude_columns='Id', categories=['Species', 'Cl
                                                                                        'PetalWidthCm'])
 
 
-# In[9]:
+# In[10]:
 
 target = df.Species
 df.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[10]:
+# In[11]:
 
 #analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
