@@ -17,7 +17,7 @@ def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar')
         return None
 
 def feature_select(dataframe, target=None, selector='variance', **kwargs):
-    from sklearn.feature_selection import *
+    from sklearn.feature_selection import VarianceThreshold, SelectKBest
     if selector=='variance':
         selector = VarianceThreshold()
         return selector.fit_transform(dataframe)

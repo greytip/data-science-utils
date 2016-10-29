@@ -53,11 +53,6 @@ df.corr()
 
 # In[ ]:
 
-
-
-
-# In[ ]:
-
 analyze.correlation_analyze(df, exclude_columns='Id')
 
 
