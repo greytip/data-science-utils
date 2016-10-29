@@ -7,14 +7,8 @@
 from datascienceutils import plotter
 from datascienceutils import analyze
 
-
 # Standard libraries
-get_ipython().magic('load_ext autoreload')
-#import matplotlib as mpl
-#mpl.use('Agg')
-#import matplotlib.pyplot as plt
 import json
-#fig=plt.figure()
 get_ipython().magic('matplotlib inline')
 
 import numpy as np
@@ -43,6 +37,19 @@ df.describe()
 
 # In[ ]:
 
+# Create classes for showing off correlation_analyze's heatmapping ability
+def createClasses(x):
+    if x == 'Iris-setosa':
+        return 'A'
+    elif x == 'Iris-versicolor':
+        return 'B'
+    else:
+        return 'C'
+df['Class'] = df['Species'].apply(createClasses)
+
+
+# In[ ]:
+
 df.head()
 
 
@@ -53,7 +60,15 @@ df.corr()
 
 # In[ ]:
 
-analyze.correlation_analyze(df, exclude_columns='Id')
+df['Species'].unique()
+
+
+# In[ ]:
+
+analyze.correlation_analyze(df, exclude_columns='Id', categories=['Species', 'Class'], measure=['SepalLengthCm', 
+                                                                                      'SepalWidthCm',
+                                                                                       'PetalLengthCm',
+                                                                                       'PetalWidthCm'])
 
 
 # In[ ]:
@@ -70,37 +85,10 @@ df.drop('Species', 1, inplace=True)
 
 # In[ ]:
 
-analyze.silhouette_analyze(df, cluster_type='KMeans', n_clusters=range(2,4))
-
-
-# In[ ]:
-
-analyze.silhouette_analyze(df, cluster_type='spectral', n_clusters=range(2,5))
-
-
-# In[ ]:
-
-analyze.cluster_analyze(df, cluster_type='KMeans', n_clusters=4)
-
-
-# In[ ]:
-
 analyze.cluster_analyze(df, cluster_type='dbscan')
 
 
 # In[ ]:
 
 analyze.som_analyze(df, (30,30), algo_type='som')
-
-
-# In[ ]:
-
-df.columns
-
-
-# In[ ]:
-
-#new_df =df.copy(deep=True)
-#new_df.drop('Id', 1, inplace=True)
-analyze.chaid_tree(df, 'y_pred')
 
