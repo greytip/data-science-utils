@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 # Custom libraries
 from datascienceutils import plotter
@@ -26,14 +26,14 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[ ]:
+# In[2]:
 
 irisDf = pd.read_csv('./data/Iris.csv')
 # Sample Timeseries  picked from here https://www.backblaze.com/b2/hard-drive-test-data.html
 hdd2013Df = pd.read_csv('./data/hdd_2013-11-26.csv')
 
 
-# In[ ]:
+# In[3]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
@@ -47,27 +47,27 @@ def createClasses(x):
 irisDf['Class'] = irisDf['Species'].apply(createClasses)
 
 
-# In[ ]:
+# In[4]:
 
 irisDf.describe()
 
 
-# In[ ]:
+# In[5]:
 
 irisDf.head()
 
 
-# In[ ]:
+# In[6]:
 
 irisDf.corr()
 
 
-# In[ ]:
+# In[7]:
 
 irisDf['Species'].unique()
 
 
-# In[ ]:
+# In[8]:
 
 analyze.correlation_analyze(irisDf, exclude_columns='Id', 
                                 categories=['Species', 'Class'], 
@@ -75,49 +75,49 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
                                            'PetalLengthCm', 'PetalWidthCm'])
 
 
-# In[ ]:
+# In[9]:
 
 target = irisDf.Species
 irisDf.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[ ]:
+# In[10]:
 
 #analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
 
-# In[ ]:
+# In[11]:
 
 analyze.cluster_analyze(irisDf, cluster_type='dbscan')
 
 
-# In[ ]:
+# In[12]:
 
 #analyze.som_analyze(df, (10,10), algo_type='som')
 
 
-# In[ ]:
+# In[13]:
 
 hdd2013Df.fillna(value=0, inplace=True)
 hdd2013Df.describe()
 
 
-# In[ ]:
+# In[14]:
 
 hdd2013Df.head()
 
 
-# In[ ]:
+# In[15]:
 
 hdd2013Df['date'] = hdd2013Df['date'].astype('datetime64[ns]')
 
 
-# In[ ]:
+# In[16]:
 
 hdd2013Df['date'] = [each + datetime.timedelta(0, i*45) for i, each in enumerate(hdd2013Df.date)]
 
 
-# In[ ]:
+# In[17]:
 
 analyze.time_series_analysis(hdd2013Df, timeCol='date', valueCol='smart_1_raw', seasonal={'freq': '30s'})
 
