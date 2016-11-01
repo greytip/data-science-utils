@@ -123,7 +123,6 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     if not skip_seasonal_decompose:
         if 'seasonal' in kwargs:
             seasonal_args = kwargs.get('seasonal')
-
             tsu.seasonal_decompose(ts, **seasonal_args)
         else:
             tsu.seasonal_decompose(ts)
