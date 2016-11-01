@@ -13,7 +13,9 @@ def test_stationarity(timeseries, valueCol, skip_stationarity=False, title='time
     orig = plt.plot(timeseries, color='blue',label='Original')
     mean = plt.plot(rolmean, color='red', label='Rolling Mean')
     std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    plt.legend(loc='best')
+    #plt.legend(handles=orig, loc='upper left')
+    #plt.legend(handles=mean, loc='upper left')
+    #plt.legend(handles=std, loc='upper left')
     plt.title('Rolling Mean & Standard Deviation of ' + title )
     plt.show()
 
@@ -48,6 +50,7 @@ def plot_autocorrelation(timeseries_df, valueCol=None,
 def seasonal_decompose(timeseries_df, freq=None, **kwargs):
     import statsmodels.api as sm
     timeseries_df.interpolate(inplace=True)
+    print(freq)
     if not freq: freq = len(timeseries_df) - 2
     seasonal_components = sm.tsa.seasonal_decompose(timeseries_df, freq=freq, **kwargs)
     fig = seasonal_components.plot()

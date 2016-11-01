@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 # Custom libraries
 from datascienceutils import plotter
@@ -10,13 +10,13 @@ from datascienceutils import analyze
 # Standard libraries
 import json
 get_ipython().magic('matplotlib inline')
-
+import datetime
 import numpy as np
 import pandas as pd
 import random
+
 from sklearn import cross_validation
 from sklearn import metrics
-
 
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.charts import Histogram
@@ -26,12 +26,14 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[2]:
+# In[ ]:
 
-df = pd.read_csv('./data/Iris.csv')
+irisDf = pd.read_csv('./data/Iris.csv')
+# Sample Timeseries  picked from here https://www.backblaze.com/b2/hard-drive-test-data.html
+hdd2013Df = pd.read_csv('./data/hdd_2013-11-26.csv')
 
 
-# In[3]:
+# In[ ]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
@@ -42,54 +44,85 @@ def createClasses(x):
         return 'B' 
     else:
         return 'C'
-df['Class'] = df['Species'].apply(createClasses)
+irisDf['Class'] = irisDf['Species'].apply(createClasses)
 
 
-# In[4]:
+# In[ ]:
 
-df.describe()
-
-
-# In[5]:
-
-df.head()
+irisDf.describe()
 
 
-# In[6]:
+# In[ ]:
 
-df.corr()
-
-
-# In[7]:
-
-df['Species'].unique()
+irisDf.head()
 
 
-# In[8]:
+# In[ ]:
 
-analyze.correlation_analyze(df, exclude_columns='Id', 
+irisDf.corr()
+
+
+# In[ ]:
+
+irisDf['Species'].unique()
+
+
+# In[ ]:
+
+analyze.correlation_analyze(irisDf, exclude_columns='Id', 
                                 categories=['Species', 'Class'], 
                                 measure=['SepalLengthCm','SepalWidthCm',
                                            'PetalLengthCm', 'PetalWidthCm'])
 
 
-# In[9]:
+# In[ ]:
 
-target = df.Species
-df.drop(['Species', 'Class'], 1, inplace=True)
+target = irisDf.Species
+irisDf.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[10]:
+# In[ ]:
 
 #analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
 
-# In[11]:
+# In[ ]:
 
-analyze.cluster_analyze(df, cluster_type='dbscan')
+analyze.cluster_analyze(irisDf, cluster_type='dbscan')
 
 
-# In[12]:
+# In[ ]:
 
 #analyze.som_analyze(df, (10,10), algo_type='som')
+
+
+# In[ ]:
+
+hdd2013Df.fillna(value=0, inplace=True)
+hdd2013Df.describe()
+
+
+# In[ ]:
+
+hdd2013Df.head()
+
+
+# In[ ]:
+
+hdd2013Df['date'] = hdd2013Df['date'].astype('datetime64[ns]')
+
+
+# In[ ]:
+
+hdd2013Df['date'] = [each + datetime.timedelta(0, i*45) for i, each in enumerate(hdd2013Df.date)]
+
+
+# In[ ]:
+
+analyze.time_series_analysis(hdd2013Df, timeCol='date', valueCol='smart_1_raw', seasonal={'freq': '30s'})
+
+
+# In[ ]:
+
+
 
