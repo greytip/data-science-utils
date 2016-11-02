@@ -8,6 +8,7 @@ import time
 import sklearnUtils as sku
 
 #TODO: add a way of weakening the discovered cluster structure and running again
+# http://scilogs.spektrum.de/hlf/sometimes-noise-signals/
 def is_cluster(dataframe, model_type='dbscan', batch_size=2):
     if model_type == 'dbscan':
         model_obj = cluster.DBSCAN(eps=.2)
