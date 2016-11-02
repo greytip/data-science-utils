@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from collections import defaultdict
-
 
 def trainVotingClassifier(dataframe, target):
     from sklearn.linear_model import LogisticRegression
@@ -49,7 +49,7 @@ def cross_val_train(dataframe, target, modelType, **kwargs):
     scores = cross_val_score(model, dataframe, target, cv=cv)
     return scores
 
-def train(dataframe, target, modelType, **kwargs):
+def train(dataframe, target, modelType, column=None, **kwargs):
     """
     Generic training wrapper around different scikits-learn models
 
@@ -61,7 +61,8 @@ def train(dataframe, target, modelType, **kwargs):
     @return:
         Model object
     """
-
+    #TODO: Damn I'm sick of looking at this if spaghetti. Next task is to put into a dict and call
+    # the function
     if modelType == 'knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
@@ -110,15 +111,16 @@ def train(dataframe, target, modelType, **kwargs):
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression()
         if column:
-            l_reg.fit(dataframe[column], target)
+            l_reg.fit(dataframe[column].reshape(len(target), 1), target)
         else:
             l_reg.fit(dataframe, target)
         return l_reg
 
     elif modelType == 'logisticRegression':
+        from sklearn.linear_model import LogisticRegression
         log_reg = LogisticRegression(random_state=123)
         if column:
-            log_reg.fit(dataframe[column], target)
+            log_reg.fit(np.asarray(dataframe[column], dtype='float64').reshape(len(target),1), target)
         else:
             log_reg.fit(dataframe, target)
         return log_reg

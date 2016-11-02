@@ -1,5 +1,6 @@
-#
+# Standard and External lib imports
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
+from bokeh.palettes import Blues9
 from bokeh.resources import CDN
 from bokeh.embed import components
 from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
@@ -7,7 +8,23 @@ from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
                            Text, Circle, HoverTool, Triangle)
 from math import ceil
 
+#TODO: Ugh.. this file/module needs a cleanup
+# Custom imports
+from . import utils
+
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
+
+def genColors(n, palette):
+    """
+    Ugh.. hate this if else. .screw this i'll take the functional route3.
+    """
+    if n > 11:
+        return palette.Magma256()
+    if n <= 3:
+        return palette.Magma3()
+    else:
+        return getattr(palette,'Magma' + str(n))()
+
 
 def lineplot(df, xcol, ycol, title=None):
     if not title:
@@ -19,7 +36,7 @@ def lineplot(df, xcol, ycol, title=None):
     show(p1)
 
 def show_image(image):
-    from bokeh.plotting import figure, show
+    from bokeh.plotting import figure
     p = figure(x_range=(0,image.shape[0]), y_range=(0,image.shape[1]))
     p.image(image=image, palette='Spectral11')
     return p
@@ -250,25 +267,6 @@ AXIS_FORMATS = dict(
     axis_line_width=1,
     major_tick_line_width=1,)
 
-
-def c3plot_from_query(conn, query, condition=0):
-    """
-    :param conn: Sqlalchemy connection object
-    :param query: query as a string for which you want to plot bar and it must return x and y columns
-    :param condition: It is a number. x values in the graph will be greater than condition value.
-    :return: script and div (script,div)
-    """
-    result = conn.execute(query)
-    plot_data = {}
-    y, cities = [], []
-    for row in result:
-        if row[0] > condition and row[1]:
-            y.append(float(row[0]))
-            cities.append(str(row[1]))
-
-    plot_data['y'] = y
-    return cities, plot_data['y']
-
 def histogram(histDF,values, **kwargs):
     from bokeh.charts import Histogram
     return Histogram(histDF[values], **kwargs)
@@ -293,14 +291,29 @@ def heatmap(heatMapDF,xlabel, ylabel, value_label,title="heatmap", palette=None,
                         title=title, width=800, palette=palette, **kwargs)
     return hm
 
-def scatterplot(scatterDF, xcol, ycol, xlabel, ylabel, group=None, **kwargs):
+def scatterplot(scatterDF, xcol, ycol, xlabel=None, ylabel=None, group=None):
+    p = figure()
     from bokeh.charts import Scatter
+
+    if not xlabel:
+        xlabel = xcol
+    if not ylabel:
+        ylabel = ycol
+
     if not group:
-        scatter = Scatter(scatterDF, x=xcol, y=ycol, xlabel=xlabel, ylabel=ylabel, **kwargs)
+        p.circle(scatterDF[xcol], scatterDF[ycol], size=5)
+        #scatter = Scatter(scatterDF, x=xcol, y=ycol, xlabel=xlabel, ylabel=ylabel)
     else:
-        scatter = Scatter(scatterDF, x=xcol, y=ycol, xlabel=xlabel,
-                                ylabel=ylabel, color=group, **kwargs)
-    return scatter
+        #groups = list(scatterDf[group].unique())
+        #colors = genColors(len(groups))
+        #for group in groups:
+            #color = colors.pop()
+            #p.circle(scatterDf[xcol], scatterDf[ycol], size=5, color=color )
+        p = Scatter(scatterDF, x=xcol, y=ycol, xlabel=xlabel,
+                                ylabel=ylabel, color=group)
+    p.xaxis.axis_label = xcol
+    p.yaxis.axis_label = ycol
+    return p
 
 def mscatter(p, x, y, typestr="o"):
     p.scatter(x, y, marker=typestr, alpha=0.5)

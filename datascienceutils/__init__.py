@@ -1,3 +1,5 @@
 from . import sklearnUtils
 from . import analyze
-__all__ = [analyze, sklearnUtils]
+from . import plotter
+
+__all__ = [analyze, sklearnUtils, plotter]

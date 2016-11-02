@@ -77,47 +77,52 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
 
 # In[9]:
 
+analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
+
+
+# In[ ]:
+
 target = irisDf.Species
 irisDf.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[10]:
+# In[ ]:
 
 #analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
 
-# In[11]:
+# In[ ]:
 
 analyze.cluster_analyze(irisDf, cluster_type='dbscan')
 
 
-# In[12]:
+# In[ ]:
 
 #analyze.som_analyze(df, (10,10), algo_type='som')
 
 
-# In[13]:
+# In[ ]:
 
 hdd2013Df.fillna(value=0, inplace=True)
 hdd2013Df.describe()
 
 
-# In[14]:
+# In[ ]:
 
 hdd2013Df.head()
 
 
-# In[15]:
+# In[ ]:
 
 hdd2013Df['date'] = hdd2013Df['date'].astype('datetime64[ns]')
 
 
-# In[16]:
+# In[ ]:
 
 hdd2013Df['date'] = [each + datetime.timedelta(0, i*45) for i, each in enumerate(hdd2013Df.date)]
 
 
-# In[17]:
+# In[ ]:
 
 analyze.time_series_analysis(hdd2013Df, timeCol='date', valueCol='smart_1_raw', seasonal={'freq': '30s'})
 

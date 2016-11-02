@@ -1,33 +1,26 @@
+# Standard and external libraries
+from bokeh.plotting import show
+
 import pandas as pd
 import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Custom libraries
 from . import plotter
+from . import utils
 
-def chunks(combos, size=9):
-    for i in range(0, len(combos), size):
-        yield combos[i:i + size]
-
-def get_figures_and_combos(combos):
-    figures = list()
-    combo_lists = list()
-    for each in chunks(combos, 9):
-        figures.append(plt.figure(figsize=(20,10)))
-        combo_lists.append(each)
-    return figures, combo_lists
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
     import numpy as np
-    from bokeh.plotting import show
 
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     #assert len(columns) < 20, "Too many columns"
     numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
     combos = list(itertools.combinations(numerical_columns, 2))
-    figures, combo_lists = get_figures_and_combos(combos)
+    figures, combo_lists = utils.get_figures_and_combos(combos)
     assert len(figures) == len(combo_lists), "figures not equal to plot groups"
     plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05, hspace=.01)
 
@@ -65,9 +58,8 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
 def regression_analyze(df, col1, col2, trainsize=0.8):
     """
     """
-    from . import sklearnUtils as sku
+    from . import predictiveModels as pm
 
-    from sklearn.cross_validation import cross_val_predict, train_test_split, cross_val_score
     import matplotlib.pyplot as plt
     import numpy as np
 
@@ -80,10 +72,19 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     #   Additionally plot the fitted y and the correct y in different colours against the same x
     new_df = df[[col1, col2]].copy(deep=True)
     target = new_df[col2]
-    models = [  sku.train(new_df, target, col1, modelType='linearRegression'),
-                sku.train(new_df, target, col1, modelType='logisticRegression'),
+    import pdb; pdb.set_trace()
+    models = [  pm.train(new_df, target, column=col1, modelType='linearRegression'),
+                #pm.train(new_df, target, column=col1, modelType='logisticRegression'),
               ]
-    map(fit, models)
+    plots = list()
+    for model in models:
+        scatter = plotter.scatterplot(new_df, col1, col2)
+        scatter.line(new_df[col1], model.predict(new_df[col1]), line_color='red')
+        plots.append(scatter)
+    print(model.score(new_df[col1], new_df[col2]))
+    for plot in plots:
+        show(plot)
+
     pass
 
 def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min',
