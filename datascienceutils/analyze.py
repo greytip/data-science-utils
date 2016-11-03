@@ -10,16 +10,24 @@ import numpy as np
 from . import plotter
 from . import utils
 
+def dist_analyze(df, column=None):
+    # TODO: May be add a way to plot joint distributions of two variables?
+    # TODO: add grouped violinplots by categorical variables too.
+    if not column:
+        numericalColumns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
+        for column in numericalColumns:
+            plotter.sb_violinplot(df[column])
+    else:
+        plotter.sb_violinplot(df[column])
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
-    import numpy as np
 
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     #assert len(columns) < 20, "Too many columns"
-    numerical_columns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
-    combos = list(itertools.combinations(numerical_columns, 2))
+    numericalColumns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
+    combos = list(itertools.combinations(numericalColumns, 2))
     figures, combo_lists = utils.get_figures_and_combos(combos)
     assert len(figures) == len(combo_lists), "figures not equal to plot groups"
     plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05, hspace=.01)

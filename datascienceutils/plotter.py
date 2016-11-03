@@ -376,27 +376,36 @@ def sb_heatmap(df, label):
     # Creating heatmaps in matplotlib is more difficult than it should be.
     # Thankfully, Seaborn makes them easy for us.
     # http://stanford.edu/~mwaskom/software/seaborn/
-
     import seaborn as sns
     sns.set(style='white')
-
     sns.heatmap(df.T, mask=df.T.isnull(), annot=True, fmt='.0%');
 
-def sb_violinplot(df,column):
+def sb_violinplot(series, dataframe=None, groupCol = None, **kwargs):
     import seaborn as sns
+    if not groupCol:
+        assert isinstance(series, pd.Series)
+        sns.violinplot(x=series, **kwargs)
+    else:
+        assert dataframe and groupCol
+        assert isinstance(series, str)
+        sns.violinplot(x=groupCol, y=series, data=dataframe, **kwargs)
 
-    # Compute the correlation matrix and average over networks
-    corr_df = df.corr().groupby(level=column).mean()
-    corr_df.index = corr_df.index.astype(int)
-    corr_df = corr_df.sort_index().T
+#def sb_violinplot(df, groupByCol):
+#    import seaborn as sns
+#
+#    # Compute the correlation matrix and average over networks
+#    corr_df = df.corr().groupby(level=groupByCol).mean()
+#    corr_df.index = corr_df.index.astype(int)
+#    corr_df = corr_df.sort_index().T
+#
+#
+#    # Draw a violinplot with a narrower bandwidth than the default
+#    sns.violinplot(data=corr_df, palette="Set3", bw=.2, cut=1, linewidth=1)
+#
+#    # Finalize the figure
+#    ax.set(ylim=(-.7, 1.05))
+#    sns.despine(left=True, bottom=True)
 
-
-    # Draw a violinplot with a narrower bandwidth than the default
-    sns.violinplot(data=corr_df, palette="Set3", bw=.2, cut=1, linewidth=1)
-
-    # Finalize the figure
-    ax.set(ylim=(-.7, 1.05))
-    sns.despine(left=True, bottom=True)
 
 def sb_jointplot(series1, series2):
     import numpy as np
