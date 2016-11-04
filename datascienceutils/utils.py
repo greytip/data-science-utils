@@ -1,3 +1,21 @@
+# Type checkers taken from here. http://stackoverflow.com/questions/25039626/find-numeric-columns-in-pandas-python
+def is_type(df, baseType):
+    import numpy as np
+    import pandas as pd
+    test = [issubclass(np.dtype(d).type, baseType) for d in df.dtypes]
+    return pd.DataFrame(data = test, index = df.columns, columns = ["test"])
+
+def is_float(df):
+    import numpy as np
+    return is_type(df, np.float)
+
+def is_number(df):
+    import numpy as np
+    return is_type(df, np.number)
+
+def is_integer(df):
+    import numpy as np
+    return is_type(df, np.integer)
 
 def apply_on_all(seq, method, *args, **kwargs):
     """

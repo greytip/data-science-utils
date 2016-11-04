@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 # Custom libraries
 from datascienceutils import plotter
@@ -26,14 +26,14 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[2]:
+# In[ ]:
 
 irisDf = pd.read_csv('./data/Iris.csv')
 # Sample Timeseries  picked from here https://www.backblaze.com/b2/hard-drive-test-data.html
 hdd2013Df = pd.read_csv('./data/hdd_2013-11-26.csv')
 
 
-# In[3]:
+# In[ ]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
@@ -47,27 +47,27 @@ def createClasses(x):
 irisDf['Class'] = irisDf['Species'].apply(createClasses)
 
 
-# In[4]:
+# In[ ]:
 
 irisDf.describe()
 
 
-# In[5]:
+# In[ ]:
 
 irisDf.head()
 
 
-# In[6]:
+# In[ ]:
 
 irisDf.corr()
 
 
-# In[7]:
+# In[ ]:
 
-irisDf['Species'].unique()
+irisDf.select_dtypes(include=[np.number]).columns
 
 
-# In[8]:
+# In[ ]:
 
 analyze.correlation_analyze(irisDf, exclude_columns='Id', 
                                 categories=['Species', 'Class'], 
@@ -75,7 +75,7 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
                                            'PetalLengthCm', 'PetalWidthCm'])
 
 
-# In[9]:
+# In[ ]:
 
 analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
 
@@ -84,11 +84,6 @@ analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
 
 target = irisDf.Species
 irisDf.drop(['Species', 'Class'], 1, inplace=True)
-
-
-# In[ ]:
-
-#analyze.time_series_analysis(df, timeCol='date', valueCol='count')
 
 
 # In[ ]:

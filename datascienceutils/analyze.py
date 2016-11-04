@@ -26,7 +26,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     #assert len(columns) < 20, "Too many columns"
-    numericalColumns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
+    numericalColumns = df.select_dtypes(include=[np.number])
     combos = list(itertools.combinations(numericalColumns, 2))
     figures, combo_lists = utils.get_figures_and_combos(combos)
     assert len(figures) == len(combo_lists), "figures not equal to plot groups"
@@ -80,7 +80,6 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     #   Additionally plot the fitted y and the correct y in different colours against the same x
     new_df = df[[col1, col2]].copy(deep=True)
     target = new_df[col2]
-    import pdb; pdb.set_trace()
     models = [  pm.train(new_df, target, column=col1, modelType='linearRegression'),
                 #pm.train(new_df, target, column=col1, modelType='logisticRegression'),
               ]
