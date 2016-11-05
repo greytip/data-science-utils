@@ -1,10 +1,11 @@
 # Standard and external libraries
 from bokeh.plotting import show
 
-import pandas as pd
 import itertools
+import functools
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 # Custom libraries
 from . import plotter
@@ -14,7 +15,7 @@ def dist_analyze(df, column=None):
     # TODO: May be add a way to plot joint distributions of two variables?
     # TODO: add grouped violinplots by categorical variables too.
     if not column:
-        numericalColumns = filter(lambda x: df[x].dtype in [np.float64, np.int64] ,columns)
+        numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
             plotter.sb_violinplot(df[column])
     else:
@@ -26,7 +27,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     #assert len(columns) < 20, "Too many columns"
-    numericalColumns = df.select_dtypes(include=[np.number])
+    numericalColumns = df.select_dtypes(include=[np.number]).columns
     combos = list(itertools.combinations(numericalColumns, 2))
     figures, combo_lists = utils.get_figures_and_combos(combos)
     assert len(figures) == len(combo_lists), "figures not equal to plot groups"
@@ -86,11 +87,17 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     plots = list()
     for model in models:
         scatter = plotter.scatterplot(new_df, col1, col2)
-        scatter.line(new_df[col1], model.predict(new_df[col1]), line_color='red')
+        source = new_df[col1].as_matrix().reshape(-1,1)
+        flatSrc = [item for sublist in source for item in sublist]
+        predicted = list(model.predict(source))
+        scatter.line(flatSrc,
+                     predicted,
+                     line_color='red')
         plots.append(scatter)
-    print(model.score(new_df[col1], new_df[col2]))
-    for plot in plots:
-        show(plot)
+        show(scatter)
+        print(model.score(source, new_df[col2].as_matrix().reshape(-1,1)))
+    #for plot in plots:
+    #    show(plot)
 
     pass
 

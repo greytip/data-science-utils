@@ -381,6 +381,7 @@ def sb_heatmap(df, label):
     sns.heatmap(df.T, mask=df.T.isnull(), annot=True, fmt='.0%');
 
 def sb_violinplot(series, dataframe=None, groupCol = None, **kwargs):
+    import pandas as pd
     import seaborn as sns
     if not groupCol:
         assert isinstance(series, pd.Series)

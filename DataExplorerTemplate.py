@@ -77,16 +77,12 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
 
 # In[ ]:
 
-analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
+analyze.dist_analyze(irisDf, 'SepalLengthCm')
 
 
 # In[ ]:
 
-from sklearn import linear_model
-l_reg = linear_model.LinearRegression()
-target = irisDf['SepalWidthCm']
-source = irisDf['SepalLengthCm'].reshape((len(target),1))
-l_reg.fit(source, target)
+analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
 
 
 # In[ ]:

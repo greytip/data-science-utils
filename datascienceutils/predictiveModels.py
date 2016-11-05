@@ -111,7 +111,8 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression()
         if column:
-            l_reg.fit(dataframe[column].reshape((len(target), 1)), target)
+            source = dataframe[column].reshape((len(target), 1))
+            l_reg.fit(source, target)
         else:
             l_reg.fit(dataframe, target)
         return l_reg
@@ -120,7 +121,8 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         from sklearn.linear_model import LogisticRegression
         log_reg = LogisticRegression(random_state=123)
         if column:
-            log_reg.fit(np.asarray(dataframe[column], dtype='float64').reshape(len(target),1), target)
+            source = dataframe[column].reshape(-1, 1)
+            log_reg.fit(source, target)
         else:
             log_reg.fit(dataframe, target)
         return log_reg
