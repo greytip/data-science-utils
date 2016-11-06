@@ -12,8 +12,9 @@ scipy
 
 #datascience
 #datasciencebox
+#PyRRD
 
-theano
+#theano
 #pattern
 keras
 milk
