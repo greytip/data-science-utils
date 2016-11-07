@@ -1,5 +1,4 @@
 bokeh
-chest
 jupyter
 matplotlib
 numpy
@@ -10,15 +9,6 @@ sqlalchemy
 scikit-learn
 scipy
 
-#datascience
-#datasciencebox
-#PyRRD
-
-#theano
-#pattern
-keras
-milk
-CHAID
 xgboost
 
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
