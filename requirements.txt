@@ -8,7 +8,6 @@ seaborn
 sqlalchemy
 scikit-learn
 scipy
-
 xgboost
 
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
