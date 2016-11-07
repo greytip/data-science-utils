@@ -37,11 +37,9 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     # split plots into a 3xX matrix
     # assume 3 columns
 
-    rowcount = 3*round(len(plots)/3)
-    grid = gridplot(list(utils.chunks(plots, size=3)))
+    grid = gridplot(list(utils.chunks(plots, size=2)))
     show(grid)
     print("# Correlation btw Numerical Columns")
-    #plt.show()
     if (categories and measure):
         for meas in measure:
             combos = itertools.combinations(categories, 2)
@@ -186,7 +184,6 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         y_pred = clusterer.predict(df_mat)
     dataframe['y_pred'] = y_pred
     # plot
-    #plt.subplot(4, 1 , 1)
     plt.title(cluster_type, size=18)
     plt.scatter(df_mat[:, 0], df_mat[:, 1]) # color=colors[y_pred].tolist(), s=10)
 
@@ -195,8 +192,6 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         center_colors = colors[:len(centers)]
         plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
     plt.show()
-    #plt.xlim(-2, 2)
-    #plt.ylim(-2, 2)
 
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     # Use clustering algorithms from here
