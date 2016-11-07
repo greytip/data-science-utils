@@ -1,5 +1,6 @@
 # Standard and external libraries
 from bokeh.plotting import show
+from bokeh.layouts import gridplot
 
 import itertools
 import functools
@@ -29,22 +30,18 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     #assert len(columns) < 20, "Too many columns"
     numericalColumns = df.select_dtypes(include=[np.number]).columns
     combos = list(itertools.combinations(numericalColumns, 2))
-    figures, combo_lists = utils.get_figures_and_combos(combos)
-    assert len(figures) == len(combo_lists), "figures not equal to plot groups"
-    plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05, hspace=.01)
+    plots = []
+    for combo in combos:
+        u,v = combo
+        plots.append(plotter.scatterplot(df, u, v))
+    # split plots into a 3xX matrix
+    # assume 3 columns
 
-    for i, figure in enumerate(figures):
-        for combo in combo_lists[i]:
-            u,v = combo
-            # Damn odd way of matplotlib's putting together how many sub plots and which one.
-            ax1 = figure.add_subplot(int("3" + str(int(len(combo_lists[i])/3)) + str(i + 1)))
-            plotter.mscatter(ax1, df[u], df[v])
-            ax1.set_xlabel(u)
-            ax1.set_ylabel(v)
-            #ax1.legend(loc='upper left')
-
+    rowcount = 3*round(len(plots)/3)
+    grid = gridplot(list(utils.chunks(plots, size=3)))
+    show(grid)
     print("# Correlation btw Numerical Columns")
-    plt.show()
+    #plt.show()
     if (categories and measure):
         for meas in measure:
             combos = itertools.combinations(categories, 2)
