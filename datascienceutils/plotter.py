@@ -282,13 +282,15 @@ def boxplot(boxDF, values_label, xlabel, title="boxplot", **kwargs):
     boxplot = BoxPlot(boxDF, values=values_label, label=xlabel, color=xlabel, title=title, **kwargs)
     return boxplot
 
-def heatmap(heatMapDF,xlabel, ylabel, value_label,title="heatmap", palette=None, **kwargs):
+def heatmap(heatMapDF,xlabel, ylabel, value_label,
+            title="heatmap", palette=None, width=500,
+            height=500,**kwargs):
     from bokeh.charts import HeatMap
     if not palette:
         from bokeh.palettes import RdBu11 as palette_tmpl
         palette = palette_tmpl
     hm = HeatMap(heatMapDF, x=xlabel, y=ylabel, values=value_label,
-                        title=title, width=800, palette=palette, **kwargs)
+                        title=title, height=height, width=width, palette=palette, **kwargs)
     return hm
 
 def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
