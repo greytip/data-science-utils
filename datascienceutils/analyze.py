@@ -41,6 +41,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     show(grid)
     print("# Correlation btw Numerical Columns")
     if (categories and measure):
+        heatmaps = []
         for meas in measure:
             combos = itertools.combinations(categories, 2)
             for combo in combos:
@@ -48,11 +49,12 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
                 print("# Correlation btw Columns %s & %s by measure %s" % (combo[0],
                                                                                 combo[1],
                                                                                 meas))
-                heatmap = plotter.heatmap(df, combo[0], combo[1],
+                heatmaps.append(plotter.heatmap(df, combo[0], combo[1],
                                       meas, title="%s vs %s %s heatmap"%(combo[0],
                                                                          combo[1],
-                                                                         meas))
-                show(heatmap)
+                                                                         meas)))
+        hmGrid = gridplot(list(utils.chunks(heatmaps, size=2)))
+        show(hmGrid)
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
     # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance
@@ -90,9 +92,8 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
                      line_color='red')
         plots.append(scatter)
         show(scatter)
+        print("Regression Score")
         print(model.score(source, new_df[col2].as_matrix().reshape(-1,1)))
-    #for plot in plots:
-    #    show(plot)
 
     pass
 
@@ -206,9 +207,9 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     import matplotlib.cm as cm
     import numpy as np
     import collections
-    assert isinstance(n_clusters, collections.Iterable), "n_clusters must be an iterable object"
     if not n_clusters:
         n_clusters = range(2, 8, 2)
+    assert isinstance(n_clusters, collections.Iterable), "n_clusters must be an iterable object"
     dataframe = dataframe.as_matrix()
     cluster_scores_df = pd.DataFrame(columns=['cluster_size', 'silhouette_score'])
     # Silhouette analysis --
