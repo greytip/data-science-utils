@@ -199,8 +199,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
     # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
     # coloured area plots ??)
-
-    from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
+    from sklearn.cluster import *
     from sklearn.metrics import silhouette_samples, silhouette_score
 
     import matplotlib.pyplot as plt
@@ -218,14 +217,32 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
 
     for j, cluster in enumerate(n_clusters):
         if cluster_type == 'KMeans':
-            assert n_clusters, "Number of clusters argument mandatory"
             # seed of 10 for reproducibility.
             clusterer = KMeans(n_clusters=cluster, random_state=10)
         elif cluster_type == 'spectral':
-            assert n_clusters, "Number of clusters argument mandatory"
             clusterer = SpectralClustering(n_clusters=cluster,
                                                   eigen_solver='arpack',
                                                   affinity="nearest_neighbors")
+        elif cluster_type == 'dbscan':
+            clusterer = DBSCAN(eps=0.2)
+
+        elif cluster_type == 'birch':
+            clusterer = Birch(n_clusters=cluster)
+
+        elif cluster_type == 'affinityProp':
+            clusterer = AffinityPropagation(damping=0.9, preference=-200)
+
+        elif cluster_type == 'agglomerativeCluster':
+            # connectivity matrix for structured Ward
+            connectivity = kneighbors_graph(dataframe, n_neighbors=10, include_self=False)
+            # make connectivity symmetric
+            connectivity = 0.5 * (connectivity + connectivity.T)
+            clusterer = AgglomerativeClustering(n_clusters=cluster, linkage='ward',
+                                                connectivity=connectivity)
+        elif cluster_type == 'meanShift':
+            # estimate bandwidth for mean shift
+            bandwidth = cluster.estimate_bandwidth(dataframe, quantile=0.3)
+            clusterer = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
         else:
             raise "Unknown clustering algorithm type"
         # Create a subplot with 1 row and 2 columns
