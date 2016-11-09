@@ -199,7 +199,8 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
     # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
     # coloured area plots ??)
-    from sklearn.cluster import *
+    from sklearn.cluster import KMeans, SpectralClustering, DBSCAN, MeanShift, \
+                        Birch, AffinityPropagation, AgglomerativeClustering
     from sklearn.metrics import silhouette_samples, silhouette_score
 
     import matplotlib.pyplot as plt
