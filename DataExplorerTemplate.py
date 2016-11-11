@@ -71,7 +71,7 @@ irisDf.select_dtypes(include=[np.number]).columns
 
 analyze.correlation_analyze(irisDf, exclude_columns='Id', 
                                 categories=['Species', 'Class'], 
-                                measure=['SepalLengthCm','SepalWidthCm',
+                                measures=['count', 'SepalLengthCm','SepalWidthCm',
                                            'PetalLengthCm', 'PetalWidthCm'])
 
 
@@ -93,36 +93,58 @@ irisDf.drop(['Species', 'Class'], 1, inplace=True)
 
 # In[12]:
 
-analyze.cluster_analyze(irisDf, cluster_type='dbscan')
+irisDf.head()
 
 
 # In[13]:
 
-#analyze.som_analyze(df, (10,10), algo_type='som')
+analyze.silhouette_analyze(irisDf, cluster_type='KMeans')
+
+
+# In[23]:
+
+analyze.silhouette_analyze(irisDf, cluster_type='dbscan')
+
+
+# In[21]:
+
+
+analyze.silhouette_analyze(irisDf, cluster_type='spectral')
+
+
+# In[22]:
+
+
+analyze.silhouette_analyze(irisDf, cluster_type='birch')
 
 
 # In[14]:
+
+#analyze.som_analyze(df, (10,10), algo_type='som')
+
+
+# In[15]:
 
 hdd2013Df.fillna(value=0, inplace=True)
 hdd2013Df.describe()
 
 
-# In[15]:
+# In[16]:
 
 hdd2013Df.head()
 
 
-# In[16]:
+# In[17]:
 
 hdd2013Df['date'] = hdd2013Df['date'].astype('datetime64[ns]')
 
 
-# In[17]:
+# In[18]:
 
 hdd2013Df['date'] = [each + datetime.timedelta(0, i*45) for i, each in enumerate(hdd2013Df.date)]
 
 
-# In[18]:
+# In[19]:
 
 analyze.time_series_analysis(hdd2013Df, timeCol='date', valueCol='smart_1_raw', seasonal={'freq': '30s'})
 

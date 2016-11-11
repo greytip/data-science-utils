@@ -22,11 +22,13 @@ def dist_analyze(df, column=None):
     else:
         plotter.sb_violinplot(df[column])
 
-def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
+def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
     # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
 
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
+    if not measures:
+        measures = ['count']
     #assert len(columns) < 20, "Too many columns"
     numericalColumns = df.select_dtypes(include=[np.number]).columns
     combos = list(itertools.combinations(numericalColumns, 2))
@@ -40,10 +42,25 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measure=None):
     grid = gridplot(list(utils.chunks(plots, size=2)))
     show(grid)
     print("# Correlation btw Numerical Columns")
-    if (categories and measure):
+
+    if (categories and measures):
         heatmaps = []
-        for meas in measure:
-            combos = itertools.combinations(categories, 2)
+        combos = itertools.combinations(categories, 2)
+        cols = list(df.columns)
+        if 'count' in measures:
+            # Do a group by on categories and use count() to heatmap
+            measures.remove('count')
+            for combo in combos:
+                counts = list()
+                print("# Correlation btw Columns %s & %s by count" % (combo[0], combo[1]))
+                group0 = df.groupby(list(combo)).size()
+                for idx, each in df.iterrows():
+                    counts.append(each[cols.index(combo[0])][cols.index(combo[1])])
+                df['counts'] = counts
+                heatmaps.append(plotter.heatmap(df, combo[0], combo[1], 'counts'))
+            df.drop('counts', 1, inplace=True)
+
+        for meas in measures:
             for combo in combos:
                 #assert len(categories) == 2, "Only two categories supported at the moment"
                 print("# Correlation btw Columns %s & %s by measure %s" % (combo[0],
