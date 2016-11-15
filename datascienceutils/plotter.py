@@ -1,6 +1,5 @@
 # Standard and External lib imports
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
-from bokeh.palettes import Blues9
 from bokeh.resources import CDN
 from bokeh.embed import components
 from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
@@ -9,23 +8,27 @@ from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
 from math import ceil
 from numpy import pi as PI
 
+import operator
+import itertools
+
 #TODO: Ugh.. this file/module needs a cleanup
 # Custom imports
 from . import utils
 
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
 
-def genColors(n, palette):
+def genColors(n, ptype='magma'):
     """
-    Ugh.. hate this if else. .screw this i'll take the functional route3.
     """
-    if n > 11:
-        return palette.Magma256()
-    if n <= 3:
-        return palette.Magma3()
+    from bokeh.palettes import magma, inferno, plasma, viridis
+    if ptype=='magma':
+        return magma(n)
+    elif ptype == 'inferno':
+        return inferno(n)
+    elif ptype == 'plasma':
+        return plasma(n)
     else:
-        return getattr(palette,'Magma' + str(n))()
-
+        return viridis(n)
 
 def lineplot(df, xcol, ycol, title=None):
     if not title:
@@ -290,11 +293,11 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
     return p
 
 def pieChart(df, column):
-    import pdb; pdb.set_trace()
-    percents = sorted([idx, each/len(df) for each in df.groupby(column).size()],
-                      key=operator.itemgetter(1), reverse=True)
-    starts = [p*2*PI for p in percents]
-    ends = [p*2*PI for p in percents]
+    percents = sorted([(each[0], each[1] / len(df)) for each in df.groupby(column).size().iteritems()],
+                      key=operator.itemgetter(1))
+    sectors = [0] + list(itertools.accumulate([p[1] * 2 * PI for p in percents])) + [2*PI]
+    starts = sectors[:-1]
+    ends = sectors[1:]
     colors = genColors(len(percents))
     p = figure(x_range=(-1,1), y_range=(-1,1), x_axis_label=column)
     p.wedge(x=0, y=0, radius=1, start_angle=starts, end_angle=ends, color=colors)
