@@ -7,6 +7,7 @@ from bokeh.models import ( Text, PanTool, WheelZoomTool, LinearAxis,
                            SingleIntervalTicker, Range1d,  Plot,
                            Text, Circle, HoverTool, Triangle)
 from math import ceil
+from numpy import pi as PI
 
 #TODO: Ugh.. this file/module needs a cleanup
 # Custom imports
@@ -53,33 +54,6 @@ def month_year_format(datetimeObj):
 # Normalize values to 0 to 100
 #transCountsNorm = transCounts/np.max(np.abs(allCounts), axis=0)
 #accountCountsNorm = accountCounts/np.max(np.abs(allCounts), axis=0)
-
-def plot_bar_from_query(conn, query, condition=0, title="Bar chart", xlabel="x", ylabel="y"):
-    """
-    :param conn: Sqlalchemy connection object
-    :param query: query as a string for which you want to plot bar and it must return x and y columns
-    :param condition: It is a number. x values in the graph will be greater than condition value.
-    :param title: Title of the chart
-    :param xlabel: x label for the chart
-    :param ylabel: y label for the chart
-    :return: script and div (script,div)
-    """
-    result = conn.execute(query)
-    plot_data = {}
-    y, cities = [], []
-    for row in result:
-        if row[0] > condition and row[1]:
-            y.append(float(row[0]))
-            cities.append(str(row[1]))
-
-    plot_data['y'] = y
-    plot = Bar(plot_data, cities,
-               title=title,
-               xlabel=xlabel, ylabel=ylabel,
-               width=470, height=500)
-    script, div = components(plot, CDN)
-    return script, div
-
 
 def plot_twin_y_axis_scatter(conn, query1=None, query2=None,
                              xy1={}, xy2={}):
@@ -315,6 +289,21 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
     p.yaxis.axis_label = ycol
     return p
 
+def pieChart(df, column):
+    import pdb; pdb.set_trace()
+    percents = sorted([idx, each/len(df) for each in df.groupby(column).size()],
+                      key=operator.itemgetter(1), reverse=True)
+    starts = [p*2*PI for p in percents]
+    ends = [p*2*PI for p in percents]
+    colors = genColors(len(percents))
+    p = figure(x_range=(-1,1), y_range=(-1,1), x_axis_label=column)
+    p.wedge(x=0, y=0, radius=1, start_angle=starts, end_angle=ends, color=colors)
+    return p
+
+def doNutChart(df, col1, col2):
+    # TODO
+    pass
+
 def mscatter(p, x, y, typestr="o"):
     p.scatter(x, y, marker=typestr, alpha=0.5)
 
@@ -380,6 +369,8 @@ def sb_heatmap(df, label):
     sns.set(style='white')
     sns.heatmap(df.T, mask=df.T.isnull(), annot=True, fmt='.0%');
 
+def sb_piechart(df,column):
+    pass
 def sb_violinplot(series, dataframe=None, groupCol = None, **kwargs):
     import pandas as pd
     import seaborn as sns
@@ -425,14 +416,14 @@ def sb_jointplot(series1, series2):
     return sns.jointplot(series1, series2, kind="kde", size=7, space=0)
 
 def cross_validate():
-	for i, (train, test) in enumerate(cv):
-		score = classifier.fit(dataframe[train], target[train]).decision_function(dataframe[test])
-		# Compute ROC curve and area the curve
-		fpr, tpr, thresholds = roc_curve(target[test], probas_[:, 1])
-		mean_tpr += interp(mean_fpr, fpr, tpr)
-		mean_tpr[0] = 0.0
-		roc_auc = auc(fpr, tpr)
-		plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
+    for i, (train, test) in enumerate(cv):
+        score = classifier.fit(dataframe[train], target[train]).decision_function(dataframe[test])
+        # Compute ROC curve and area the curve
+        fpr, tpr, thresholds = roc_curve(target[test], probas_[:, 1])
+        mean_tpr += interp(mean_fpr, fpr, tpr)
+        mean_tpr[0] = 0.0
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=1, label='ROC fold %d (area = %0.2f)' % (i, roc_auc))
 
 def roc_plot(dataframe, target, score, cls_list=[],multi_class=True):
     import numpy as np

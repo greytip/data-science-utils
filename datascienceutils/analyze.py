@@ -12,13 +12,20 @@ import pandas as pd
 from . import plotter
 from . import utils
 
-def dist_analyze(df, column=None):
+def dist_analyze(df, column=None, categories=[]):
     # TODO: May be add a way to plot joint distributions of two variables?
     # TODO: add grouped violinplots by categorical variables too.
     if not column:
         numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
             plotter.sb_violinplot(df[column])
+        catColumns = set(df.columns).difference(set(numericalColumns))
+        plots=[]
+        for column in catColumns:
+            plots.append(plotter.pieChart(df, column))
+        grid = gridplot(list(utils.chunks(plots, size=2)))
+        show(grid)
+
     else:
         plotter.sb_violinplot(df[column])
 
@@ -36,12 +43,11 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
     for combo in combos:
         u,v = combo
         plots.append(plotter.scatterplot(df, u, v))
-    # split plots into a 3xX matrix
-    # assume 3 columns
 
+    # split plots into a 2xX matrix
+    print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
     show(grid)
-    print("# Correlation btw Numerical Columns")
 
     if (categories and measures):
         heatmaps = []
