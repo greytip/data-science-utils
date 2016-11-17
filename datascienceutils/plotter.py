@@ -293,14 +293,25 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
     return p
 
 def pieChart(df, column):
-    percents = sorted([(each[0], each[1] / len(df)) for each in df.groupby(column).size().iteritems()],
-                      key=operator.itemgetter(1))
-    sectors = [0] + list(itertools.accumulate([p[1] * 2 * PI for p in percents])) + [2*PI]
-    starts = sectors[:-1]
-    ends = sectors[1:]
-    colors = genColors(len(percents))
+
+    wedges = []
+    wedge_sum = 0
+    total = len(df)
+    colors = genColors(df[column].nunique())
+    for i, (key, val) in enumerate(df.groupby(column).size().iteritems()):
+        wedge = dict()
+        pct = val/float(total)
+        wedge['start'] = 2 * PI * wedge_sum
+        wedge_sum = (val/float(total)) + wedge_sum
+        wedge['end'] = 2 * PI * wedge_sum
+        wedge['name'] = '{}-{:.2f} %'.format(key, pct)
+        wedge['color'] = colors.pop()
+        wedges.append(wedge)
     p = figure(x_range=(-1,1), y_range=(-1,1), x_axis_label=column)
-    p.wedge(x=0, y=0, radius=1, start_angle=starts, end_angle=ends, color=colors)
+
+    for i, wedge in enumerate(wedges):
+        p.wedge(x=0, y=0, radius=1, start_angle=wedge['start'], end_angle=wedge['end'],
+                color=wedge['color'], legend=wedge['name'])
     return p
 
 def doNutChart(df, col1, col2):
