@@ -1,16 +1,25 @@
+# Visualization packages
 bokeh
-jupyter
+seaborn
 matplotlib
+#pygal
+
+# Stats Packages
+-e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
+tsfresh
+
+jupyter
 numpy
 psycopg2
 pandas
-seaborn
 sqlalchemy
 scikit-learn
 scipy
 xgboost
+
+# Neural network packages
 mxnet
-#luigi
-#pygal
--e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
+
+#Distributed orchestration
+#luigi
