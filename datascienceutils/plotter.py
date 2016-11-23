@@ -37,12 +37,17 @@ def lineplot(df, xcol, ycol, title=None):
     #p1.grid.grid_line_alpha=0.3
     p1.line(df[xcol], df[ycol], color=(100,100,255, 1), legend=ycol)
     p1.legend.location = "top_left"
-    show(p1)
+    return p1
 
 def show_image(image):
     from bokeh.plotting import figure
-    p = figure(x_range=(0,image.shape[0]), y_range=(0,image.shape[1]))
-    p.image(image=image, palette='Spectral11')
+
+    p = figure(x_range=(0, 10), y_range=(0, 10))
+    #if image.ndim > 2:
+    #    if image.shape[2] == 3:
+    #        img = np.dstack([image, np.ones(img.shape[:2], np.uint8) * 255])
+    #    img = np.squeeze(img.view(np.uint32))
+    p.image(image=[image], x=0, y=0, dw=10, dh=10, palette='Spectral11')
     return p
 
 def timestamp(datetimeObj):
@@ -53,10 +58,6 @@ def timestamp(datetimeObj):
 def month_year_format(datetimeObj):
     return str(datetimeObj.strftime("%b-%Y"))
 
-
-# Normalize values to 0 to 100
-#transCountsNorm = transCounts/np.max(np.abs(allCounts), axis=0)
-#accountCountsNorm = accountCounts/np.max(np.abs(allCounts), axis=0)
 
 def plot_twin_y_axis_scatter(conn, query1=None, query2=None,
                              xy1={}, xy2={}):
