@@ -9,7 +9,8 @@ sqlalchemy
 scikit-learn
 scipy
 xgboost
-pygal
-luigi
+mxnet
+#luigi
+#pygal
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
