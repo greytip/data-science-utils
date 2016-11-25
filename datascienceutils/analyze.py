@@ -17,15 +17,14 @@ def dist_analyze(df, column=None, categories=[]):
         plots=[]
         numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
-            plots.append(plotter.sb_violinplot(df[column], inner='point'))
+            plots.append(plotter.sb_violinplot(df[column], inner='box'))
         catColumns = set(df.columns).difference(set(numericalColumns))
         for column in catColumns:
             plots.append(plotter.pieChart(df, column))
         grid = gridplot(list(utils.chunks(plots, size=2)))
         show(grid)
-
     else:
-        plotter.sb_violinplot(df[column], inner='point')
+        show(plotter.sb_violinplot(df[column], inner='box'))
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
     """
