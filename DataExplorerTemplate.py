@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[16]:
 
 # Custom libraries
 from datascienceutils import plotter
@@ -26,14 +26,14 @@ output_notebook(bokeh.resources.INLINE)
 from sqlalchemy import create_engine
 
 
-# In[2]:
+# In[17]:
 
 irisDf = pd.read_csv('./data/Iris.csv')
 # Sample Timeseries  picked from here https://www.backblaze.com/b2/hard-drive-test-data.html
 hdd2013Df = pd.read_csv('./data/hdd_2013-11-26.csv')
 
 
-# In[3]:
+# In[18]:
 
 # Create classes for showing off correlation_analyze's heatmapping ability
 def createClasses(x):
@@ -47,27 +47,27 @@ def createClasses(x):
 irisDf['Class'] = irisDf['Species'].apply(createClasses)
 
 
-# In[4]:
+# In[19]:
 
 irisDf.describe()
 
 
-# In[5]:
+# In[20]:
 
 irisDf.head()
 
 
-# In[6]:
+# In[21]:
 
 irisDf.corr()
 
 
-# In[7]:
+# In[22]:
 
 irisDf.select_dtypes(include=[np.number]).columns
 
 
-# In[8]:
+# In[23]:
 
 analyze.correlation_analyze(irisDf, exclude_columns='Id', 
                                 categories=['Species', 'Class'], 
@@ -75,38 +75,38 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
                                            'PetalLengthCm', 'PetalWidthCm'])
 
 
-# In[9]:
+# In[24]:
 
 analyze.dist_analyze(irisDf)
 
 
-# In[10]:
+# In[25]:
 
 analyze.dist_analyze(irisDf, 'SepalLengthCm')
 
 
-# In[11]:
+# In[26]:
 
 analyze.regression_analyze(irisDf, 'SepalLengthCm', 'SepalWidthCm')
 
 
-# In[12]:
+# In[27]:
 
 target = irisDf.Species
 irisDf.drop(['Species', 'Class'], 1, inplace=True)
 
 
-# In[13]:
+# In[28]:
 
 irisDf.head()
 
 
-# In[14]:
+# In[29]:
 
 analyze.silhouette_analyze(irisDf, cluster_type='KMeans')
 
 
-# In[15]:
+# In[30]:
 
 analyze.silhouette_analyze(irisDf, cluster_type='dbscan')
 
@@ -128,28 +128,28 @@ analyze.silhouette_analyze(irisDf, cluster_type='birch')
 #analyze.som_analyze(df, (10,10), algo_type='som')
 
 
-# In[ ]:
+# In[31]:
 
 hdd2013Df.fillna(value=0, inplace=True)
 hdd2013Df.describe()
 
 
-# In[ ]:
+# In[32]:
 
 hdd2013Df.head()
 
 
-# In[ ]:
+# In[33]:
 
 hdd2013Df['date'] = hdd2013Df['date'].astype('datetime64[ns]')
 
 
-# In[ ]:
+# In[34]:
 
 hdd2013Df['date'] = [each + datetime.timedelta(0, i*45) for i, each in enumerate(hdd2013Df.date)]
 
 
-# In[ ]:
+# In[35]:
 
 analyze.time_series_analysis(hdd2013Df, timeCol='date', valueCol='smart_1_raw', seasonal={'freq': '30s'})
 
