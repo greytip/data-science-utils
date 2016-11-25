@@ -160,29 +160,16 @@ def train(dataframe, target, modelType, column=None, **kwargs):
     elif modelType == 'baseNN':
         from keras.models import Sequential
         from keras.layers import Dense
-       	# create model
-	model = Sequential()
+        # create model
+        model = Sequential()
         assert args.get('inputParams', None)
         assert args.get('outputParams', None)
-	#if not args.get('inputParams'):
-        #    inputParams = { 'output_dim': 4,
-	#		    'input_dim': 4,
-	#		    'init': 'normal',
-	#		    'activation': 'relu'
-	#		}
-
-	#if not args.get('outputParams'):
-        #    outputParams = { 'input_dim': 4
-        #                     'output_dim': 3,
-        #                     'init': 'normal',
-        #                     'activation': 'sigmoid'
-        #                     }
-	model.add(Dense(inputParams))
-	model.add(Dense(outputParams))
+        model.add(Dense(inputParams))
+        model.add(Dense(outputParams))
         if args.get('compileParams'):
             # Compile model
             model.compile(compileParams)# loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-	return model
+        return model
 
     else:
         raise ''

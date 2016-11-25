@@ -13,14 +13,12 @@ from . import plotter
 from . import utils
 
 def dist_analyze(df, column=None, categories=[]):
-    # TODO: May be add a way to plot joint distributions of two variables?
-    # TODO: add grouped violinplots by categorical variables too.
     if not column:
+        plots=[]
         numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
             plotter.sb_violinplot(df[column])
         catColumns = set(df.columns).difference(set(numericalColumns))
-        plots=[]
         for column in catColumns:
             plots.append(plotter.pieChart(df, column))
         grid = gridplot(list(utils.chunks(plots, size=2)))
@@ -30,8 +28,10 @@ def dist_analyze(df, column=None, categories=[]):
         plotter.sb_violinplot(df[column])
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
-    # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
-
+    """
+    Plot scatter plots of all combinations of numerical columns.
+    If categorise and measures are passed, plot heatmap of combination of categories by measure.
+    """
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     if not measures:
@@ -86,6 +86,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
 
 def regression_analyze(df, col1, col2, trainsize=0.8):
     """
+    Plot regressed data vs original data for the passed columns.
     """
     from . import predictiveModels as pm
 
@@ -125,6 +126,10 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
                          skip_stationarity=False,
                          skip_autocorrelation=False,
                          skip_seasonal_decompose=False, **kwargs):
+    """
+    Plot time series, rolling mean, rolling std , autocorrelation plot, partial autocorrelation plot
+    and seasonal decompose
+    """
     from . import timeSeriesUtils as tsu
     if 'create' in kwargs:
         ts = tsu.create_timeseries_df(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs.get('create'))
@@ -136,16 +141,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
     if 'stationarity' in kwargs:
-        tsu.test_stationarity(ts, valueCol=valueCol,
+        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity,
                                   **kwargs.get('stationarity'))
     else:
-        tsu.test_stationarity(ts, valueCol=valueCol,
+        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity
                                     )
-
+    show(plt)
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
             tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
@@ -162,6 +167,9 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
             tsu.seasonal_decompose(ts)
 
 def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
+    """
+    Apply the given clustering method and plot scatter plot and center
+    """
 
     # coloured area plots ??)
     from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
@@ -218,6 +226,9 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     plt.show()
 
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
+    """
+    Plot silhouette analysis plot of given data and cluster type across different  cluster sizes
+    """
     # Use clustering algorithms from here
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
     # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be

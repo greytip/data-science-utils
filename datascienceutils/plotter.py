@@ -30,14 +30,20 @@ def genColors(n, ptype='magma'):
     else:
         return viridis(n)
 
-def lineplot(df, xcol, ycol, title=None):
+def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwargs):
     if not title:
         title = "%s Vs %s" %(xcol, ycol)
-    p1 = figure(title=title)
-    #p1.grid.grid_line_alpha=0.3
-    p1.line(df[xcol], df[ycol], color=(100,100,255, 1), legend=ycol)
-    p1.legend.location = "top_left"
-    return p1
+    if label:
+        label = label + ycol
+    else:
+        label = ycol
+    if not fig:
+        fig = figure(title=title)
+    if not color:
+        color=(100,100,255, 1)
+    fig.line(df[xcol], df[ycol], color=color, legend=label)
+    fig.legend.location = "top_left"
+    return fig
 
 def show_image(image):
     from bokeh.plotting import figure

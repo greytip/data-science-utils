@@ -101,24 +101,24 @@ irisDf.head()
 analyze.silhouette_analyze(irisDf, cluster_type='KMeans')
 
 
-# In[23]:
+# In[14]:
 
 analyze.silhouette_analyze(irisDf, cluster_type='dbscan')
 
 
-# In[21]:
+# In[ ]:
 
 
 analyze.silhouette_analyze(irisDf, cluster_type='spectral')
 
 
-# In[22]:
+# In[ ]:
 
 
 analyze.silhouette_analyze(irisDf, cluster_type='birch')
 
 
-# In[14]:
+# In[ ]:
 
 #analyze.som_analyze(df, (10,10), algo_type='som')
 

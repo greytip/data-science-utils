@@ -9,3 +9,5 @@
 	* Add Gini Coefficient-like measure visual for the cluster analyze
 	* Add some test cases
 	* Add support for https://github.com/ANNetGPGPU/ANNetGPGPU in the cluster analyze logic
+    	* analyze TODO: May be add a way to plot joint distributions of two variables?
+    	* analyze TODO: add grouped violinplots by categorical variables too.
