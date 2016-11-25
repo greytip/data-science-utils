@@ -18,6 +18,7 @@ scipy
 xgboost
 
 # Neural network packages
+keras
 mxnet
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
 

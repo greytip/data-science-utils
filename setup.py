@@ -160,7 +160,7 @@ def setup_package():
     else:
         cmdclass = {}
 
-    build_requires = ['scikit-learn', 'xgboost', 'bokeh', 'seaborn', 'pandas', 'matplotlib']
+    build_requires = ['scikit-learn', 'bokeh', 'seaborn', 'pandas', 'matplotlib']
 
     metadata = dict(
             name='datascienceutils',
