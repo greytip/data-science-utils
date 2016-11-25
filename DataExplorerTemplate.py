@@ -80,11 +80,6 @@ analyze.correlation_analyze(irisDf, exclude_columns='Id',
 analyze.dist_analyze(irisDf)
 
 
-# In[ ]:
-
-
-
-
 # In[10]:
 
 analyze.dist_analyze(irisDf, 'SepalLengthCm')

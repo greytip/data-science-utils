@@ -298,36 +298,37 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # The silhouette_score gives the average value for all the samples.
         # This gives a perspective into the density and separation of the formed
         # clusters
-        silhouette_avg = silhouette_score(dataframe, cluster_labels)
-        cluster_scores_df.loc[j] = [cluster, silhouette_avg]
-        print("For clusters =", cluster,
-                "The average silhouette_score is :", silhouette_avg)
+        if cluster_labels > 1:
+            silhouette_avg = silhouette_score(dataframe, cluster_labels)
+            cluster_scores_df.loc[j] = [cluster, silhouette_avg]
+            print("For clusters =", cluster,
+                    "The average silhouette_score is :", silhouette_avg)
 
-        # Compute the silhouette scores for each sample
-        sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
+            # Compute the silhouette scores for each sample
+            sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
 
-        y_lower = 10
-        for i in range(cluster):
-            # Aggregate the silhouette scores for samples belonging to
-            # cluster i, and sort them
-            ith_cluster_silhouette_values = \
-                sample_silhouette_values[cluster_labels == i]
+            y_lower = 10
+            for i in range(cluster):
+                # Aggregate the silhouette scores for samples belonging to
+                # cluster i, and sort them
+                ith_cluster_silhouette_values = \
+                    sample_silhouette_values[cluster_labels == i]
 
-            ith_cluster_silhouette_values.sort()
+                ith_cluster_silhouette_values.sort()
 
-            size_cluster_i = ith_cluster_silhouette_values.shape[0]
-            y_upper = y_lower + size_cluster_i
+                size_cluster_i = ith_cluster_silhouette_values.shape[0]
+                y_upper = y_lower + size_cluster_i
 
-            color = cm.spectral(float(i) / len(n_clusters))
-            ax1.fill_betweenx(np.arange(y_lower, y_upper),
-                                0, ith_cluster_silhouette_values,
-                                facecolor=color, edgecolor=color, alpha=0.7)
+                color = cm.spectral(float(i) / len(n_clusters))
+                ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                                    0, ith_cluster_silhouette_values,
+                                    facecolor=color, edgecolor=color, alpha=0.7)
 
-            # Label the silhouette plots with their cluster numbers at the middle
-            ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+                # Label the silhouette plots with their cluster numbers at the middle
+                ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
 
-            # Compute the new y_lower for next plot
-            y_lower = y_upper + 10  # 10 for the 0 samples
+                # Compute the new y_lower for next plot
+                y_lower = y_upper + 10  # 10 for the 0 samples
 
         ax1.set_title("The silhouette plot for the various clusters.")
         ax1.set_xlabel("The silhouette coefficient values")
