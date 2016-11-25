@@ -1,4 +1,5 @@
 # Standard and External lib imports
+from bokeh.mpl import to_bokeh
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
@@ -392,16 +393,17 @@ def sb_heatmap(df, label):
 
 def sb_piechart(df,column):
     pass
+
 def sb_violinplot(series, dataframe=None, groupCol = None, **kwargs):
     import pandas as pd
     import seaborn as sns
     if not groupCol:
         assert isinstance(series, pd.Series)
-        sns.violinplot(x=series, **kwargs)
+        return to_bokeh(sns.violinplot(x=series, **kwargs).figure)
     else:
         assert dataframe and groupCol
         assert isinstance(series, str)
-        sns.violinplot(x=groupCol, y=series, data=dataframe, **kwargs)
+        return to_bokeh(sns.violinplot(x=groupCol, y=series, data=dataframe, **kwargs).figure)
 
 #def sb_violinplot(df, groupByCol):
 #    import seaborn as sns

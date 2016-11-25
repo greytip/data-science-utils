@@ -17,7 +17,7 @@ def dist_analyze(df, column=None, categories=[]):
         plots=[]
         numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
-            plotter.sb_violinplot(df[column])
+            plots.append(plotter.sb_violinplot(df[column], inner='point'))
         catColumns = set(df.columns).difference(set(numericalColumns))
         for column in catColumns:
             plots.append(plotter.pieChart(df, column))
@@ -25,7 +25,7 @@ def dist_analyze(df, column=None, categories=[]):
         show(grid)
 
     else:
-        plotter.sb_violinplot(df[column])
+        plotter.sb_violinplot(df[column], inner='point')
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
     """
