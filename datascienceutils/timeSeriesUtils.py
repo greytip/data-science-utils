@@ -1,23 +1,22 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+from bokeh.plotting import figure, show
 
-def test_stationarity(timeseries, valueCol, skip_stationarity=False, title='timeseries', **kwargs):
+from . import plotter
+def test_stationarity(timeseries, timeCol, valueCol, skip_stationarity=False, title='timeseries', **kwargs):
 
     from statsmodels.tsa.stattools import adfuller
+    calcStatsDf = pd.DataFrame()
     #Determing rolling statistics
-    rolmean = pd.rolling_mean(timeseries, window=12)
-    rolstd = pd.rolling_std(timeseries, window=12)
+    calcStatsDf['rollingMean'] = pd.rolling_mean(timeseries, window=12)[valueCol]
+    calcStatsDf['rollingSTD']  = pd.rolling_std(timeseries, window=12)[valueCol]
+    timeseries = timeseries.reset_index()
+    calcStatsDf['time'] = timeseries[timeCol]
 
     #Plot rolling statistics:
-    fig = plt.figure(figsize=(12, 8))
-    orig = plt.plot(timeseries, color='blue',label='Original')
-    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
-    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    #plt.legend(handles=orig, loc='upper left')
-    #plt.legend(handles=mean, loc='upper left')
-    #plt.legend(handles=std, loc='upper left')
-    plt.title('Rolling Mean & Standard Deviation of ' + title )
-    plt.show()
+    fig = figure(width=12, height=8)
+    orig = plotter.lineplot(timeseries, timeCol, valueCol, color='blue',label='Original')
+    mean = plotter.lineplot(calcStatsDf,'time', 'rollingMean', fig=fig, color='red', label='Rolling Mean')
+    std = plotter.lineplot(calcStatsDf, 'time', 'rollingSTD', fig=fig, color='black', label = 'Rolling Std')
 
     if not skip_stationarity:
         #Perform Dickey-Fuller test:
@@ -27,6 +26,7 @@ def test_stationarity(timeseries, valueCol, skip_stationarity=False, title='time
         for key,value in dftest[4].items():
             dfoutput['Critical Value (%s)'%key] = value
         print(dfoutput)
+    return fig
 
 def plot_autocorrelation(timeseries_df, valueCol=None,
                          timeCol='timestamp', timeInterval='30min', partial=False):
@@ -38,14 +38,15 @@ def plot_autocorrelation(timeseries_df, valueCol=None,
 
     """
     import statsmodels.api as sm
+    import matplotlib.pyplot as plt
     fig = plt.figure(figsize=(12,8))
     ax1 = fig.add_subplot(111)
     if not partial:
-        subplt = sm.graphics.tsa.plot_acf(timeseries_df[valueCol].squeeze(), lags=40, ax=ax1)
+        plt = sm.graphics.tsa.plot_acf(timeseries_df[valueCol].squeeze(), lags=40, ax=ax1)
     else:
-        subplt = sm.graphics.tsa.plot_pacf(timeseries_df[valueCol], lags=40, ax=ax1)
+        plt = sm.graphics.tsa.plot_pacf(timeseries_df[valueCol], lags=40, ax=ax1)
     plt.show()
-    return fig
+    return plt
 
 def seasonal_decompose(timeseries_df, freq=None, **kwargs):
     import statsmodels.api as sm

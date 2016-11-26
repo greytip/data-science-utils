@@ -42,7 +42,7 @@ Operating System :: MacOS
 
 MAJOR = 1
 MINOR = 0
-MICRO = 34
+MICRO = 36
 ISRELEASED = True
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
@@ -160,7 +160,7 @@ def setup_package():
     else:
         cmdclass = {}
 
-    build_requires = ['scikit-learn', 'xgboost', 'bokeh', 'seaborn', 'pandas', 'matplotlib']
+    build_requires = ['scikit-learn', 'bokeh', 'seaborn', 'pandas', 'matplotlib']
 
     metadata = dict(
             name='datascienceutils',

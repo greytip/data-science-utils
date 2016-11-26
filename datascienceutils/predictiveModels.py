@@ -157,6 +157,20 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         gbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)
         return gbm
 
+    elif modelType == 'baseNN':
+        from keras.models import Sequential
+        from keras.layers import Dense
+        # create model
+        model = Sequential()
+        assert args.get('inputParams', None)
+        assert args.get('outputParams', None)
+        model.add(Dense(inputParams))
+        model.add(Dense(outputParams))
+        if args.get('compileParams'):
+            # Compile model
+            model.compile(compileParams)# loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        return model
+
     else:
         raise ''
         pass

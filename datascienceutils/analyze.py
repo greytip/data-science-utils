@@ -13,25 +13,24 @@ from . import plotter
 from . import utils
 
 def dist_analyze(df, column=None, categories=[]):
-    # TODO: May be add a way to plot joint distributions of two variables?
-    # TODO: add grouped violinplots by categorical variables too.
     if not column:
+        plots=[]
         numericalColumns = df.select_dtypes(include=[np.number]).columns
         for column in numericalColumns:
-            plotter.sb_violinplot(df[column])
+            plots.append(plotter.sb_violinplot(df[column], inner='box'))
         catColumns = set(df.columns).difference(set(numericalColumns))
-        plots=[]
         for column in catColumns:
             plots.append(plotter.pieChart(df, column))
         grid = gridplot(list(utils.chunks(plots, size=2)))
         show(grid)
-
     else:
-        plotter.sb_violinplot(df[column])
+        show(plotter.sb_violinplot(df[column], inner='box'))
 
 def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
-    # TODO: based on the len(combos) decide how many figures to plot as there's a max of 9 subplots in mpl
-
+    """
+    Plot scatter plots of all combinations of numerical columns.
+    If categorise and measures are passed, plot heatmap of combination of categories by measure.
+    """
     columns = list(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     if not measures:
@@ -86,6 +85,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
 
 def regression_analyze(df, col1, col2, trainsize=0.8):
     """
+    Plot regressed data vs original data for the passed columns.
     """
     from . import predictiveModels as pm
 
@@ -125,6 +125,10 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
                          skip_stationarity=False,
                          skip_autocorrelation=False,
                          skip_seasonal_decompose=False, **kwargs):
+    """
+    Plot time series, rolling mean, rolling std , autocorrelation plot, partial autocorrelation plot
+    and seasonal decompose
+    """
     from . import timeSeriesUtils as tsu
     if 'create' in kwargs:
         ts = tsu.create_timeseries_df(df, timeCol=timeCol, timeInterval=timeInterval, **kwargs.get('create'))
@@ -136,16 +140,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
     if 'stationarity' in kwargs:
-        tsu.test_stationarity(ts, valueCol=valueCol,
+        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity,
                                   **kwargs.get('stationarity'))
     else:
-        tsu.test_stationarity(ts, valueCol=valueCol,
+        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity
                                     )
-
+    show(plt)
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
             tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
@@ -162,6 +166,9 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
             tsu.seasonal_decompose(ts)
 
 def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
+    """
+    Apply the given clustering method and plot scatter plot and center
+    """
 
     # coloured area plots ??)
     from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
@@ -218,6 +225,9 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     plt.show()
 
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
+    """
+    Plot silhouette analysis plot of given data and cluster type across different  cluster sizes
+    """
     # Use clustering algorithms from here
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
     # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
@@ -288,36 +298,37 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # The silhouette_score gives the average value for all the samples.
         # This gives a perspective into the density and separation of the formed
         # clusters
-        silhouette_avg = silhouette_score(dataframe, cluster_labels)
-        cluster_scores_df.loc[j] = [cluster, silhouette_avg]
-        print("For clusters =", cluster,
-                "The average silhouette_score is :", silhouette_avg)
+        if cluster_labels > 1:
+            silhouette_avg = silhouette_score(dataframe, cluster_labels)
+            cluster_scores_df.loc[j] = [cluster, silhouette_avg]
+            print("For clusters =", cluster,
+                    "The average silhouette_score is :", silhouette_avg)
 
-        # Compute the silhouette scores for each sample
-        sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
+            # Compute the silhouette scores for each sample
+            sample_silhouette_values = silhouette_samples(dataframe, cluster_labels)
 
-        y_lower = 10
-        for i in range(cluster):
-            # Aggregate the silhouette scores for samples belonging to
-            # cluster i, and sort them
-            ith_cluster_silhouette_values = \
-                sample_silhouette_values[cluster_labels == i]
+            y_lower = 10
+            for i in range(cluster):
+                # Aggregate the silhouette scores for samples belonging to
+                # cluster i, and sort them
+                ith_cluster_silhouette_values = \
+                    sample_silhouette_values[cluster_labels == i]
 
-            ith_cluster_silhouette_values.sort()
+                ith_cluster_silhouette_values.sort()
 
-            size_cluster_i = ith_cluster_silhouette_values.shape[0]
-            y_upper = y_lower + size_cluster_i
+                size_cluster_i = ith_cluster_silhouette_values.shape[0]
+                y_upper = y_lower + size_cluster_i
 
-            color = cm.spectral(float(i) / len(n_clusters))
-            ax1.fill_betweenx(np.arange(y_lower, y_upper),
-                                0, ith_cluster_silhouette_values,
-                                facecolor=color, edgecolor=color, alpha=0.7)
+                color = cm.spectral(float(i) / len(n_clusters))
+                ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                                    0, ith_cluster_silhouette_values,
+                                    facecolor=color, edgecolor=color, alpha=0.7)
 
-            # Label the silhouette plots with their cluster numbers at the middle
-            ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+                # Label the silhouette plots with their cluster numbers at the middle
+                ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
 
-            # Compute the new y_lower for next plot
-            y_lower = y_upper + 10  # 10 for the 0 samples
+                # Compute the new y_lower for next plot
+                y_lower = y_upper + 10  # 10 for the 0 samples
 
         ax1.set_title("The silhouette plot for the various clusters.")
         ax1.set_xlabel("The silhouette coefficient values")
