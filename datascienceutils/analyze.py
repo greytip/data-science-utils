@@ -26,29 +26,46 @@ def dist_analyze(df, column=None, categories=[]):
     else:
         show(plotter.sb_violinplot(df[column], inner='box'))
 
-def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
+def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, trellis=False):
     """
     Plot scatter plots of all combinations of numerical columns.
     If categorise and measures are passed, plot heatmap of combination of categories by measure.
+    @params:
+        df: Dataframe table data.
+        exclude_columns: Columns to be excluded/ignored
+        categories: list of categorical variable names
+        measures: List of measures to plot heatmap of categories
+        trellis: Plot trellis type plots for the categories only valid if categories is passed
+                (inspired by this:
+                http://github.com/anandjeyahar/statistical-analysis-python-tutorial/3.%20Plotting%20and%20Visualization.ipynb)
     """
-    columns = list(filter(lambda x: x not in exclude_columns, df.columns))
+    columns = set(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
     if not measures:
         measures = ['count']
-    #assert len(columns) < 20, "Too many columns"
-    numericalColumns = df.select_dtypes(include=[np.number]).columns
+
+    # Plot scatter plot of combination of numerical columns
+    numericalColumns = set(df.select_dtypes(include=[np.number]).columns).intersection(columns)
     combos = list(itertools.combinations(numericalColumns, 2))
     plots = []
     for combo in combos:
         u,v = combo
         plots.append(plotter.scatterplot(df, u, v))
 
-    # split plots into a 2xX matrix
     print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
     show(grid)
 
+    # Plot Barplots of combination of category and numerical columns
+    catNumCombos = set(itertools.product(numericalColumns, categories))
+    barplots = []
+    for each in catNumCombos:
+        barplots.append(plotter.barplot(df, each[1], each[0]))
+    grid = gridplot(list(utils.chunks(barplots, size=2)))
+    show(grid)
+
     if (categories and measures):
+        # Plot heatmaps of category-combos by measure value.
         heatmaps = []
         combos = itertools.combinations(categories, 2)
         cols = list(df.columns)
@@ -66,8 +83,8 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
             df.drop('counts', 1, inplace=True)
 
         for meas in measures:
+            # Plot heatmaps for measure across all combination of categories
             for combo in combos:
-                #assert len(categories) == 2, "Only two categories supported at the moment"
                 print("# Correlation btw Columns %s & %s by measure %s" % (combo[0],
                                                                                 combo[1],
                                                                                 meas))
@@ -77,6 +94,8 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None):
                                                                          meas)))
         hmGrid = gridplot(list(utils.chunks(heatmaps, size=2)))
         show(hmGrid)
+        if trellis:
+            trellisPlots = list()
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
     # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance
