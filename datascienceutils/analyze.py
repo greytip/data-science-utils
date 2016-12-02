@@ -23,6 +23,15 @@ def dist_analyze(df, column=None, categories=[]):
             plots.append(plotter.pieChart(df, column))
         grid = gridplot(list(utils.chunks(plots, size=2)))
         show(grid)
+        if categories:
+            # Plot Barplots of combination of category and numerical columns
+            catNumCombos = set(itertools.product(numericalColumns, categories))
+            barplots = []
+            for each in catNumCombos:
+                barplots.append(plotter.barplot(df, each[1], each[0]))
+            print("# Joint Distribution of Numerical vs Categorical Columns")
+            grid = gridplot(list(utils.chunks(barplots, size=2)))
+            show(grid)
     else:
         show(plotter.sb_violinplot(df[column], inner='box'))
 
@@ -54,14 +63,6 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
 
     print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
-    show(grid)
-
-    # Plot Barplots of combination of category and numerical columns
-    catNumCombos = set(itertools.product(numericalColumns, categories))
-    barplots = []
-    for each in catNumCombos:
-        barplots.append(plotter.barplot(df, each[1], each[0]))
-    grid = gridplot(list(utils.chunks(barplots, size=2)))
     show(grid)
 
     if (categories and measures):
