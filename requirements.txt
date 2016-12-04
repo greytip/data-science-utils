@@ -17,6 +17,8 @@ scikit-learn
 scipy
 xgboost
 
+# Package for map projections
+geos
 # Neural network packages
 keras
 mxnet
