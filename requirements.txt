@@ -8,6 +8,7 @@ matplotlib
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 tsfresh
 
+#dagpype
 jupyter
 numpy
 psycopg2

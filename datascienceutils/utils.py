@@ -5,6 +5,13 @@ def is_type(df, baseType):
     test = [issubclass(np.dtype(d).type, baseType) for d in df.dtypes]
     return pd.DataFrame(data = test, index = df.columns, columns = ["test"])
 
+def calculate_anova(df, targetCol, sourceCol):
+    from statsmodels.formula.api import ols
+    lm = ols('conformity ~ C(%s, Sum)*C(%s, Sum)'% (targetCol, sourceCol),
+            data=df).fit()
+    table = sm.stats.anova_lm(lm, typ=2)
+    return table
+
 def is_float(df):
     import numpy as np
     return is_type(df, np.float)
