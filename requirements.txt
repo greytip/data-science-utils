@@ -20,6 +20,7 @@ xgboost
 # Package for map projections
 geos
 # Neural network packages
+gym
 keras
 mxnet
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
