@@ -9,6 +9,7 @@ def extractFeaturesTimeSeries(timeSeries, idCol, timeCol):
     from tsfresh import extract_relevant_features
     return extract_relevant_features(timeSeries, column_id=idCol, column_sort=timeCol)
 
+
 def pickFeatures(df, targetCol, exclude_columns=[], categories=[]):
     columns = set(filter(lambda x: x not in exclude_columns, df.columns))
     responseType = df.targetCol.dtype.name
