@@ -18,6 +18,13 @@ scikit-learn
 scipy
 xgboost
 
+# Tools for tpot
+deap
+update_checker
+tqdm
+tpot
+
+
 # Package for map projections
 geos
 # Neural network packages
