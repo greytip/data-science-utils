@@ -1,8 +1,9 @@
 import copy
+import pandas as pd
 
 from collections import defaultdict
 from sklearn.externals import joblib
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer, LabelBinarizer
 
 def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
     """
@@ -38,12 +39,20 @@ def feature_standardize(dataframe, col_names):
     return scale(dataframe[col_names])
 
 def binarize_labels(dataframe, column):
-    labels = dataframe[column].values
-    from sklearn import preprocessing
-    enc = preprocessing.LabelBinarizer()
-    binarized_labels = enc.fit_transform(labels)
-    dataframe.drop(column, axis=1, inplace=True)
-    return dataframe, binarized_labels
+    if dataframe[column].nunique() == 2:
+        enc = LabelBinarizer()
+        binarized_labels = enc.fit_transform([dataframe[column].tolist(), (dataframe[column].nunique(),)])
+    else:
+        # Ugh.. I just can't understand how this class is helpful.Rolling my own
+        labeled_samples = pd.factorize(dataframe[column])
+        #enc = MultiLabelBinarizer()
+        binarized_labels = list()
+        for each in labeled_samples[0]:
+            tmp = [0 for i in range(dataframe[column].nunique())]
+            tmp[each] = each
+            binarized_labels.append(tmp)
+        binarized_labels = np.asarray(binarized_labels)
+    return binarized_labels
 
 def dump_model(model, filename):
     assert model, "Model required"
