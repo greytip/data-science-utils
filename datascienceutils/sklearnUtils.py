@@ -82,17 +82,38 @@ def dump_model(model, filename, model_params):
     model_params.update({'filename': filename,
                          'id': str(uuid.uuid4())})
 
-    with shelve.open(os.path.join(model_params['id'] + '_' + filename + '.pkl')) as params_file:
+    with shelve.open(os.path.join(settings.MODELS_BASE_PATH,
+                                  model_params['id'] + '_params_' + filename)) as params_file:
         params_file.update(model_params)
 
-    joblib.dump(model, os.path.join(settings.MODELS_BASE_PATH, filename+ '.pkl'), compress=('lzma', 3))
+    joblib.dump(model, os.path.join(settings.MODELS_BASE_PATH,
+                                    model_params['id'] + '_' + filename), compress=('lzma', 3))
 
-def load_model(filename, model_ype):
+def load_model(filename, model_type=None):
+    """
+    @params:
+        @filename: Filename..
+        @model_type: Pass, if you can't find filename. we use regex on the settings.models_base_path to find matching
+                filenames and pick latest file for the model
+
+    @return:
+        @model: joblib.load(filename). basically the model
+        @params: The parameters the model  was stored with  if it was
+    """
     foldername = settings.MODELS_BASE_PATH
-    relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + model_type + '*.pkl'), os.listdir(foldername)))
-    assert relevant_models, "no relevant models found"
-    relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
-    return joblib.load(os.path.join(foldername, relevant_models[0]))
+    if not filename:
+        assert model_type, 'model_type or filename mandatory'
+        relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + model_type + '*.pkl'), os.listdir(foldername)))
+        assert relevant_models, "no relevant models found"
+        relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
+        model = joblib.load(os.path.join(foldername, relevant_models[0]))
+        names = '_'.split(relevant_models[0])
+    else:
+        model = joblib.load(os.path.join(foldername, filename))
+        names = '_'.split(filename)
+    names.insert(1, 'params')
+    params = shelve.open(os.path.join(foldername, '_'.join(names)))
+    return model, params
 
 def load_latest_model(foldername, modelType='knn'):
     """
