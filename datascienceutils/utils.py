@@ -46,3 +46,4 @@ def get_figures_and_combos(combos):
         figures.append(plt.figure(figsize=(20,10)))
         combo_lists.append(each)
     return figures, combo_lists
+

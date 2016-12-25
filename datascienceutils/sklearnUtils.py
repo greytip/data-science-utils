@@ -1,10 +1,15 @@
 import copy
 import pandas as pd
 import numpy as np
+import os
+import fnmatch
 
 from collections import defaultdict
 from sklearn.externals import joblib
 from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer, LabelBinarizer
+
+
+from . import settings
 
 def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
     """
@@ -55,14 +60,39 @@ def binarize_labels(dataframe, column):
         binarized_labels = np.asarray(binarized_labels)
     return binarized_labels
 
-def dump_model(model, filename):
+def dump_model(model, filename, model_params):
+    """
+    @params:
+        @model: actual scikits-learn (or supported by sklearn.joblib) model file
+        @model_params: parameters used to build the model
+        @filename: Filename to store the model as.
+
+    @output:
+        Dumps the model and the parameters as separate files
+    """
+    import shelve
+    import uuid
+    from sklearn.externals import joblib
+
     assert model, "Model required"
     assert filename, "Filename Required"
-    from sklearn.externals import joblib
-    joblib.dump(model, filename+ '.pkl')
+    assert model_params, "model parameters (dict required)"
+    assert model_params['model_type'], "model_type required in model_params"
 
-def load_model(filename):
-    return joblib.load(filename)
+    model_params.update({'filename': filename,
+                         'id': str(uuid.uuid4())})
+
+    with shelve.open(os.path.join(model_params['id'] + '_' + filename + '.pkl')) as params_file:
+        params_file.update(model_params)
+
+    joblib.dump(model, os.path.join(settings.MODELS_BASE_PATH, filename+ '.pkl'), compress=('lzma', 3))
+
+def load_model(filename, model_ype):
+    foldername = settings.MODELS_BASE_PATH
+    relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + model_type + '*.pkl'), os.listdir(foldername)))
+    assert relevant_models, "no relevant models found"
+    relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
+    return joblib.load(os.path.join(foldername, relevant_models[0]))
 
 def load_latest_model(foldername, modelType='knn'):
     """
@@ -70,7 +100,6 @@ def load_latest_model(foldername, modelType='knn'):
     @modelType: can be overloaded to match any string. though the function surrounds a * after value
     """
     assert foldername, "Please pass in a foldername"
-    import os, fnmatch
     relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*.pkl'), os.listdir(foldername)))
     assert relevant_models, "no relevant models found"
     relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
