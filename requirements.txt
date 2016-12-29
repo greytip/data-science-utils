@@ -8,7 +8,6 @@ matplotlib
 -e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
 tsfresh
 
-#dagpype
 jupyter
 numpy
 psycopg2
@@ -16,6 +15,7 @@ pandas
 sqlalchemy
 scikit-learn
 scipy
+scikit-image
 xgboost
 
 # Tools for tpot
@@ -27,11 +27,18 @@ tpot
 
 # Package for map projections
 geos
+
 # Neural network packages
 gym
 keras
 mxnet
 -e git+git@github.com:greytip/SOMPY.git#egg=sompy
 
-#Distributed orchestration
+# Vision packages
+#object detections
+gpod
+
+#Workflow management
+
+#dagpype
 #luigi
