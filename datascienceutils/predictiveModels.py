@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
+import os
+# Sight lightgbm insist
+os.environ['LIGHTGBM_EXEC'] = os.path.join(os.getenv("HOME"), 'bin', 'lightgbm')
 
 def trainVotingClassifier(dataframe, target):
     from sklearn.linear_model import LogisticRegression
@@ -158,8 +161,8 @@ def train(dataframe, target, modelType, column=None, **kwargs):
 
     elif modelType == 'xgboost':
         import xgboost as xgb
-        gbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)
-        return gbm
+        xgbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)
+        return xgbm
 
     elif modelType == 'baseNN':
         from keras.models import Sequential
@@ -174,6 +177,30 @@ def train(dataframe, target, modelType, column=None, **kwargs):
             # Compile model
             model.compile(compileParams)# loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
+
+    elif modelType == 'lightGBMRegression':
+        from pylightgbm.models import import GBMRegressor
+        lgbm_lreg = GBMRegressor(   num_iterations=100, early_stopping_round=10,
+                                    num_leaves=10, min_data_in_leaf=10)
+        lgbm_lreg.fit(dataframe, column)
+        return lgbm_lreg
+
+    elif modelType == 'lightGBMBinaryClass':
+        from pylightgbm.models import GBMClassifier
+        lgbm_bc = GBMClassifier(metric='binary_error', min_data_in_leaf=1)
+        lgbm_bc.fit(dataframe, target)
+        return lgbm_bc
+
+    elif modelType == 'lightGBMGridSearch':
+        from pylightgbm.models import GBMClassifier
+        lgbm_gs = GBMClassifier(metric='binary_error', early_stopping_round=10, bagging_freq=10)
+        param_grid = {'learning_rate': [0.1, 0.04], 'bagging_fraction': [0.5, 0.9]}
+        lgbm_gs = GBMClassifier( metric='binary_error', early_stopping_round=10, bagging_freq=10)
+
+        scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
+        clf = model_selection.GridSearchCV(lgbm_gs, param_grid, scoring=scorer, cv=2)
+        clf.fit(dataframe, target)
+        return clf
 
     else:
         raise ''

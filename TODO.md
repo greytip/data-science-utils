@@ -13,7 +13,5 @@
 	  bubble chart for ex:)
     	* analyze TODO: May be add a way to plot joint distributions of two variables?
     	* analyze TODO: add grouped violinplots by categorical variables too.
-	* Add utils for persisning a, processed data files, b, built/trained models(with timestamp
-	  in filenames) c, a mapping between built models and the actual parameters used..(perhaps
-	  generate a uuid and use it for model name and store a shelve/pickle based dict), add a
-	  settings.py for configuring the path
+	* Add a separate grid search function to grid search a data set with the given
+	  model.(wrapper around sklearn model_selection's grid search)
