@@ -103,6 +103,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
 
     elif modelType == 'votingClass':
         tVC = trainVotingClassifier(dataframe, target, **kwargs)
+        tVC.fit(dataframe, target)
         return tVC
 
     elif modelType == 'linearRegression':
@@ -126,6 +127,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         else:
             log_reg.fit(dataframe, target)
         return log_reg
+
     elif modelType == 'kde':
          from sklearn.neighbors.kde import KernelDensity
          kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(dataframe)
@@ -146,12 +148,14 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
         from sklearn.linear_model import SGDClassifier
         sgd = SGDClassifier()
+        sgd.fit(dataframe, target)
         return sgd
 
     elif modelType == 'perceptron':
         from sklearn.linear_model import Perceptron
         perceptron = Perceptron()
         return perceptron
+
     elif modelType == 'xgboost':
         import xgboost as xgb
         gbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)

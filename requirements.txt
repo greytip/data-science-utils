@@ -5,24 +5,39 @@ matplotlib
 #pygal
 
 # Stats Packages
--e git+git@github.com:greytip/statsmodels.git#egg=statsmodels
+statsmodels
+
+# Feature selector for timeseries
 tsfresh
 
-jupyter
-numpy
-psycopg2
-pandas
-sqlalchemy
-scikit-learn
-scipy
-scikit-image
-xgboost
-
+# Genetic algo based feature selection
 # Tools for tpot
 deap
 update_checker
 tqdm
 tpot
+
+# notebook tools
+jupyter
+psycopg2
+
+# matrix tool + data structure/frame
+numpy
+pandas
+sqlalchemy
+scikit-learn
+scipy
+scikit-image
+
+#Xtreme Gradient Boosting
+xgboost
+
+#Rasterio reads and writes geospatial raster datasets
+rasterio
+
+#Light GBM
+-e git+https://github.com/Microsoft/LightGBM.git#egg=lightgbm
+-e git+https://github.com/ArdalanM/pyLightGBM.git
 
 
 # Package for map projections
@@ -32,7 +47,7 @@ geos
 gym
 keras
 mxnet
--e git+git@github.com:greytip/SOMPY.git#egg=sompy
+-e git+https://github.com:greytip/SOMPY.git#egg=sompy
 
 # Vision packages
 #object detections
