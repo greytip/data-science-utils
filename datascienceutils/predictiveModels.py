@@ -69,26 +69,26 @@ def train(dataframe, target, modelType, column=None, **kwargs):
     if modelType == 'knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
-        knn = KNeighborsClassifier(n_neighbors=6)
+        knn = KNeighborsClassifier(n_neighbors=6, **kwargs)
         knn.fit(dataframe, target)
         return knn
 
     elif modelType == 'gaussianNB':
         from sklearn.naive_bayes import GaussianNB
-        gnb = GaussianNB()
+        gnb = GaussianNB(**kwargs)
         gnb.fit(dataframe, target)
         return gnb
 
     elif modelType == 'multinomialNB':
         from sklearn.naive_bayes import MultinomialNB
         # TODO: figure out how to configure binomial distribution
-        mnb = MultinomialNB()
+        mnb = MultinomialNB(**kwargs)
         mnb.fit(dataframe, target)
         return mnb
 
     elif modelType == 'bernoulliNB':
         from sklearn.naive_bayes import BernoulliNB
-        bnb = BernoulliNB()
+        bnb = BernoulliNB(**kwargs)
         bnb.fit(dataframe, target)
         return bnb
 
@@ -100,7 +100,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
 
     elif modelType == 'svm':
         from sklearn.svm import SVC
-        svc = SVC(random_state=0, probability=True)
+        svc = SVC(random_state=0, probability=True, **kwargs)
         svc.fit(dataframe, target)
         return svc
 
@@ -113,7 +113,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         #assert column, "Column name required for building a linear model"
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
-        l_reg = linear_model.LinearRegression()
+        l_reg = linear_model.LinearRegression(**kwargs)
         if column:
             source = dataframe[column].reshape((len(target), 1))
             l_reg.fit(source, target)
@@ -123,7 +123,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
 
     elif modelType == 'logisticRegression':
         from sklearn.linear_model import LogisticRegression
-        log_reg = LogisticRegression(random_state=123)
+        log_reg = LogisticRegression(random_state=123, **kwargs)
         if column:
             source = dataframe[column].reshape(-1, 1)
             log_reg.fit(source, target)
@@ -133,30 +133,31 @@ def train(dataframe, target, modelType, column=None, **kwargs):
 
     elif modelType == 'kde':
          from sklearn.neighbors.kde import KernelDensity
-         kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(dataframe)
+         kde = KernelDensity(kernel='gaussian', bandwidth=0.2, **kwargs).fit(dataframe)
          return kde
 
     elif modelType == 'AR':
         import statsmodels.api as sm
         # fit an AR model and forecast
-        ar_fitted = sm.tsa.AR(dataframe).fit(maxlag=9, method='mle', disp=-1)
+        ar_fitted = sm.tsa.AR(dataframe).fit(maxlag=9, method='mle', disp=-1, **kwargs)
         #ts_forecast = ar_fitted.predict(start='2008', end='2050')
         return ar_fitted
 
     elif modelType == 'SARIMAX':
-        mod = sm.tsa.statespace.SARIMAX(df.riders, trend='n', order=(0,1,0), seasonal_order=(1,1,1,12))
+        mod = sm.tsa.statespace.SARIMAX(df.riders, trend='n', order=(0,1,0),
+                seasonal_order=(1,1,1,12), **kwargs)
         return mod
 
     elif modelType == 'sgd':
         # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
         from sklearn.linear_model import SGDClassifier
-        sgd = SGDClassifier()
+        sgd = SGDClassifier(**kwargs)
         sgd.fit(dataframe, target)
         return sgd
 
     elif modelType == 'perceptron':
         from sklearn.linear_model import Perceptron
-        perceptron = Perceptron()
+        perceptron = Perceptron(**kwargs)
         return perceptron
 
     elif modelType == 'xgboost':
@@ -179,23 +180,23 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         return model
 
     elif modelType == 'lightGBMRegression':
-        from pylightgbm.models import import GBMRegressor
+        from pylightgbm.models import GBMRegressor
         lgbm_lreg = GBMRegressor(   num_iterations=100, early_stopping_round=10,
                                     num_leaves=10, min_data_in_leaf=10)
-        lgbm_lreg.fit(dataframe, column)
+        lgbm_lreg.fit(dataframe, column, **kwargs)
         return lgbm_lreg
 
     elif modelType == 'lightGBMBinaryClass':
         from pylightgbm.models import GBMClassifier
         lgbm_bc = GBMClassifier(metric='binary_error', min_data_in_leaf=1)
-        lgbm_bc.fit(dataframe, target)
+        lgbm_bc.fit(dataframe, target, **kwargs)
         return lgbm_bc
 
     elif modelType == 'lightGBMGridSearch':
         from pylightgbm.models import GBMClassifier
-        lgbm_gs = GBMClassifier(metric='binary_error', early_stopping_round=10, bagging_freq=10)
+        lgbm_gs = GBMClassifier(metric='binary_error', early_stopping_round=10,
+                                bagging_freq=10, **kwargs)
         param_grid = {'learning_rate': [0.1, 0.04], 'bagging_fraction': [0.5, 0.9]}
-        lgbm_gs = GBMClassifier( metric='binary_error', early_stopping_round=10, bagging_freq=10)
 
         scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
         clf = model_selection.GridSearchCV(lgbm_gs, param_grid, scoring=scorer, cv=2)

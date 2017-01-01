@@ -296,8 +296,8 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
         for group in groups:
             color = colors.pop()
             p.circle(scatterDf[xcol], scatterDf[ycol], size=5, color=color )
-    p.xaxis.axis_label = xcol
-    p.yaxis.axis_label = ycol
+    p.xaxis.axis_label = str(xcol)
+    p.yaxis.axis_label = str(ycol)
     return p
 
 def pieChart(df, column):
