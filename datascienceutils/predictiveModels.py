@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from collections import defaultdict
 import os
-# Sight lightgbm insist
+
+from collections import defaultdict
+from sklearn import model_selection, metrics
+
+# Sigh lightgbm insist this is the only wa
 os.environ['LIGHTGBM_EXEC'] = os.path.join(os.getenv("HOME"), 'bin', 'lightgbm')
 
 def trainVotingClassifier(dataframe, target):
@@ -183,7 +186,7 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         from pylightgbm.models import GBMRegressor
         lgbm_lreg = GBMRegressor(   num_iterations=100, early_stopping_round=10,
                                     num_leaves=10, min_data_in_leaf=10)
-        lgbm_lreg.fit(dataframe, column, **kwargs)
+        lgbm_lreg.fit(dataframe, target, **kwargs)
         return lgbm_lreg
 
     elif modelType == 'lightGBMBinaryClass':
@@ -191,6 +194,20 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         lgbm_bc = GBMClassifier(metric='binary_error', min_data_in_leaf=1)
         lgbm_bc.fit(dataframe, target, **kwargs)
         return lgbm_bc
+
+    else:
+        raise ''
+
+def grid_search(dataframe, target, modelType, **kwargs):
+
+    if modelType == 'knn':
+        from sklearn.neighbors import KNeighborsClassifier
+        # 6 seems to give the best trade-off between accuracy and precision
+        knn = KNeighborsClassifier(n_neighbors=6, **kwargs)
+        scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
+        clf = model_selection.GridSearchCV(knn, scoring=scorer, cv=2)
+        knn.fit(dataframe, target)
+        return knn
 
     elif modelType == 'lightGBMGridSearch':
         from pylightgbm.models import GBMClassifier
@@ -202,12 +219,8 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         clf = model_selection.GridSearchCV(lgbm_gs, param_grid, scoring=scorer, cv=2)
         clf.fit(dataframe, target)
         return clf
-
     else:
-        raise ''
         pass
-
-
 
 def featureSelect(dataframe):
     from sklearn.feature_selection import VarianceThreshold
