@@ -8,108 +8,40 @@ from sklearn import model_selection, metrics
 # Sigh lightgbm insist this is the only wa
 os.environ['LIGHTGBM_EXEC'] = os.path.join(os.getenv("HOME"), 'bin', 'lightgbm')
 
-def trainVotingClassifier(dataframe, target):
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.ensemble import VotingClassifier
-    clf1 = LogisticRegression(random_state=123)
-    clf2 = RandomForestClassifier(random_state=123)
-    clf3 = GaussianNB()
-    eclf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)],
-                                                    voting='soft',
-                                                    weights=[1, 1, 5])
-    return eclf
-
-def predictVotingClassify(model, dataframe):
-    # predict class probabilities for all classifiers
-    probas = [c.fit(dataframe, target).predict_proba(dataframe) for c in model.classifiers]
-                                #in (clf1, clf2, clf3, eclf)]
-
-
-def cross_val_train(dataframe, target, modelType, **kwargs):
-    cv = kwargs.pop('cv',None)
-    if modelType == 'knn':
-        from sklearn.neighbors import KNeighborsClassifier
-        #n= 6 seems to give the best trade-off between accuracy and precision
-        model = KNeighborsClassifier(**kwargs)
-
-    elif modelType == 'gaussianNB':
-        from sklearn.naive_bayes import GaussianNB
-        model = GaussianNB()
-
-    elif modelType == 'sgd':
-        # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
-        from sklearn.linear_model import SGDClassifier
-        model = SGDClassifier()
-
-    elif modelType == 'perceptron':
-        from sklearn.linear_model import Perceptron
-        model = Perceptron()
-    elif modelType == 'xgboost':
-        import xgboost as xgb
-        model = xgb.XGBClassifier(**kwargs)
-    else:
-        pass
-
-    scores = cross_val_score(model, dataframe, target, cv=cv)
-    return scores
-
-def train(dataframe, target, modelType, column=None, **kwargs):
-    """
-    Generic training wrapper around different scikits-learn models
-
-    @params:
-        @dataframe: A pandas dataframe with all feature columns.
-        @target: pandas series or numpy array(basically a iterable) with the target values. should match length with dataframe
-        @modelType: String representing the model you want to train with
-
-    @return:
-        Model object
-    """
-    #TODO: Damn I'm sick of looking at this if spaghetti. Next task is to put into a dict and call
-    # the function
+def get_model_obj(modelType, **kwargs):
     if modelType == 'knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
         knn = KNeighborsClassifier(n_neighbors=6, **kwargs)
-        knn.fit(dataframe, target)
         return knn
-
     elif modelType == 'gaussianNB':
         from sklearn.naive_bayes import GaussianNB
         gnb = GaussianNB(**kwargs)
-        gnb.fit(dataframe, target)
         return gnb
 
     elif modelType == 'multinomialNB':
         from sklearn.naive_bayes import MultinomialNB
         # TODO: figure out how to configure binomial distribution
         mnb = MultinomialNB(**kwargs)
-        mnb.fit(dataframe, target)
         return mnb
 
     elif modelType == 'bernoulliNB':
         from sklearn.naive_bayes import BernoulliNB
         bnb = BernoulliNB(**kwargs)
-        bnb.fit(dataframe, target)
         return bnb
 
     elif modelType == 'randomForest':
         from sklearn.ensemble import RandomForestClassifier
         rfc = RandomForestClassifier(random_state=234, **kwargs)
-        rfc.fit(dataframe, target)
         return rfc
 
     elif modelType == 'svm':
         from sklearn.svm import SVC
         svc = SVC(random_state=0, probability=True, **kwargs)
-        svc.fit(dataframe, target)
         return svc
 
     elif modelType == 'votingClass':
         tVC = trainVotingClassifier(dataframe, target, **kwargs)
-        tVC.fit(dataframe, target)
         return tVC
 
     elif modelType == 'linearRegression':
@@ -117,21 +49,11 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression(**kwargs)
-        if column:
-            source = dataframe[column].reshape((len(target), 1))
-            l_reg.fit(source, target)
-        else:
-            l_reg.fit(dataframe, target)
         return l_reg
 
     elif modelType == 'logisticRegression':
         from sklearn.linear_model import LogisticRegression
         log_reg = LogisticRegression(random_state=123, **kwargs)
-        if column:
-            source = dataframe[column].reshape(-1, 1)
-            log_reg.fit(source, target)
-        else:
-            log_reg.fit(dataframe, target)
         return log_reg
 
     elif modelType == 'kde':
@@ -155,7 +77,6 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         # Online classifiers http://scikit-learn.org/stable/auto_examples/linear_model/plot_sgd_comparison.html
         from sklearn.linear_model import SGDClassifier
         sgd = SGDClassifier(**kwargs)
-        sgd.fit(dataframe, target)
         return sgd
 
     elif modelType == 'perceptron':
@@ -186,41 +107,68 @@ def train(dataframe, target, modelType, column=None, **kwargs):
         from pylightgbm.models import GBMRegressor
         lgbm_lreg = GBMRegressor(   num_iterations=100, early_stopping_round=10,
                                     num_leaves=10, min_data_in_leaf=10)
-        lgbm_lreg.fit(dataframe, target, **kwargs)
         return lgbm_lreg
 
     elif modelType == 'lightGBMBinaryClass':
         from pylightgbm.models import GBMClassifier
         lgbm_bc = GBMClassifier(metric='binary_error', min_data_in_leaf=1)
-        lgbm_bc.fit(dataframe, target, **kwargs)
         return lgbm_bc
 
     else:
         raise ''
 
-def grid_search(dataframe, target, modelType, **kwargs):
+def trainVotingClassifier(dataframe, target):
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.ensemble import VotingClassifier
+    clf1 = LogisticRegression(random_state=123)
+    clf2 = RandomForestClassifier(random_state=123)
+    clf3 = GaussianNB()
+    eclf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)],
+                                                    voting='soft',
+                                                    weights=[1, 1, 5])
+    return eclf
 
-    if modelType == 'knn':
-        from sklearn.neighbors import KNeighborsClassifier
-        # 6 seems to give the best trade-off between accuracy and precision
-        knn = KNeighborsClassifier(n_neighbors=6, **kwargs)
-        scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
-        clf = model_selection.GridSearchCV(knn, scoring=scorer, cv=2)
-        knn.fit(dataframe, target)
-        return knn
+def predictVotingClassify(model, dataframe):
+    # predict class probabilities for all classifiers
+    probas = [c.fit(dataframe, target).predict_proba(dataframe) for c in model.classifiers]
+                                #in (clf1, clf2, clf3, eclf)]
 
-    elif modelType == 'lightGBMGridSearch':
-        from pylightgbm.models import GBMClassifier
-        lgbm_gs = GBMClassifier(metric='binary_error', early_stopping_round=10,
-                                bagging_freq=10, **kwargs)
-        param_grid = {'learning_rate': [0.1, 0.04], 'bagging_fraction': [0.5, 0.9]}
 
-        scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
-        clf = model_selection.GridSearchCV(lgbm_gs, param_grid, scoring=scorer, cv=2)
-        clf.fit(dataframe, target)
-        return clf
+def cross_val_train(dataframe, target, modelType, **kwargs):
+    cv = kwargs.pop('cv',None)
+    model = get_model_obj(modelType, **kwargs)
+    scores = cross_val_score(model, dataframe, target, cv=cv)
+    return scores
+
+def train(dataframe, target, modelType, column=None, **kwargs):
+    """
+    Generic training wrapper around different scikits-learn models
+
+    @params:
+        @dataframe: A pandas dataframe with all feature columns.
+        @target: pandas series or numpy array(basically a iterable) with the target values. should match length with dataframe
+        @modelType: String representing the model you want to train with
+
+    @return:
+        Model object
+    """
+    model = get_model_obj(modelType, **kwargs)
+    if column:
+        source = dataframe[column].reshape((len(target), 1))
+        model.fit(source, target)
     else:
-        pass
+        model.fit(dataframe, target)
+    return model
+
+
+def grid_search(dataframe, target, modelType, **kwargs):
+    model = get_model_obj(modelType, **kwargs)
+    scorer = metrics.make_scorer(metrics.accuracy_score, greater_is_better=True)
+    clf = model_selection.GridSearchCV(model, scoring=scorer, cv=2)
+    clf.fit(dataframe, target)
+    return clf
 
 def featureSelect(dataframe):
     from sklearn.feature_selection import VarianceThreshold
