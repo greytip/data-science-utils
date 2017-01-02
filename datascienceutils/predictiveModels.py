@@ -40,10 +40,6 @@ def get_model_obj(modelType, **kwargs):
         svc = SVC(random_state=0, probability=True, **kwargs)
         return svc
 
-    elif modelType == 'votingClass':
-        tVC = trainVotingClassifier(dataframe, target, **kwargs)
-        return tVC
-
     elif modelType == 'linearRegression':
         #assert column, "Column name required for building a linear model"
         #assert dataframe[column].shape == target.shape
@@ -86,7 +82,7 @@ def get_model_obj(modelType, **kwargs):
 
     elif modelType == 'xgboost':
         import xgboost as xgb
-        xgbm = xgb.XGBClassifier(**kwargs).fit(dataframe, target)
+        xgbm = xgb.XGBClassifier(**kwargs)
         return xgbm
 
     elif modelType == 'baseNN':
@@ -116,24 +112,6 @@ def get_model_obj(modelType, **kwargs):
 
     else:
         raise ''
-
-def trainVotingClassifier(dataframe, target):
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.ensemble import VotingClassifier
-    clf1 = LogisticRegression(random_state=123)
-    clf2 = RandomForestClassifier(random_state=123)
-    clf3 = GaussianNB()
-    eclf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)],
-                                                    voting='soft',
-                                                    weights=[1, 1, 5])
-    return eclf
-
-def predictVotingClassify(model, dataframe):
-    # predict class probabilities for all classifiers
-    probas = [c.fit(dataframe, target).predict_proba(dataframe) for c in model.classifiers]
-                                #in (clf1, clf2, clf3, eclf)]
 
 
 def cross_val_train(dataframe, target, modelType, **kwargs):
