@@ -318,7 +318,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # The silhouette_score gives the average value for all the samples.
         # This gives a perspective into the density and separation of the formed
         # clusters
-        if cluster_labels > 1:
+        if len(cluster_labels) > 1:
             silhouette_avg = silhouette_score(dataframe, cluster_labels)
             cluster_scores_df.loc[j] = [cluster, silhouette_avg]
             print("For clusters =", cluster,

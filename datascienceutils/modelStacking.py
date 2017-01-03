@@ -1,4 +1,4 @@
-from utils import *
+from .utils import *
 def trainVotingClassifier(dataframe, target, **kwargs):
     from sklearn.linear_model import LogisticRegression
     from sklearn.naive_bayes import GaussianNB
