@@ -200,34 +200,14 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     import time
 
     df_mat = dataframe.as_matrix()
-    if cluster_type == 'KMeans':
-        assert n_clusters, "Number of clusters argument mandatory"
-        cluster_callable = KMeans
-        # seed of 10 for reproducibility.
-        clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
-    elif cluster_type ==  'dbscan':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        cluster_callable = DBSCAN
-        clusterer = cluster_callable(eps=0.5)
-    elif cluster_type == 'affinity_prob':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        clusterer = AffinityPropagation(damping=.9, preference=-200)
-    elif cluster_type == 'spectral':
-        assert n_clusters, "Number of clusters argument mandatory"
-        clusterer = SpectralClustering(n_clusters=n_clusters,
-                                              eigen_solver='arpack',
-                                              affinity="nearest_neighbors")
-    elif cluster_type == 'birch':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        clusterer = Birch(n_clusters=2)
-    else:
-        raise "Unknown clustering algorithm type"
     plt.figure(figsize=(2 + 3, 9.5))
     colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
     colors = np.hstack([colors] * 20)
     #plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,hspace=.01)
     t0 = time.time()
+    clusterer = utils.get_model_obj('gmm')
     clusterer.fit(df_mat)
+
     t1 = time.time()
     if hasattr(clusterer, 'labels_'):
         y_pred = clusterer.labels_.astype(np.int)
@@ -270,35 +250,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     #TODO: Add more clustering methods/types like say dbscan and others
 
     for j, cluster in enumerate(n_clusters):
-        if cluster_type == 'KMeans':
-            # seed of 10 for reproducibility.
-            clusterer = KMeans(n_clusters=cluster, random_state=10)
-        elif cluster_type == 'spectral':
-            clusterer = SpectralClustering(n_clusters=cluster,
-                                                  eigen_solver='arpack',
-                                                  affinity="nearest_neighbors")
-        elif cluster_type == 'dbscan':
-            clusterer = DBSCAN(eps=0.2)
-
-        elif cluster_type == 'birch':
-            clusterer = Birch(n_clusters=cluster)
-
-        elif cluster_type == 'affinityProp':
-            clusterer = AffinityPropagation(damping=0.9, preference=-200)
-
-        elif cluster_type == 'agglomerativeCluster':
-            # connectivity matrix for structured Ward
-            connectivity = kneighbors_graph(dataframe, n_neighbors=10, include_self=False)
-            # make connectivity symmetric
-            connectivity = 0.5 * (connectivity + connectivity.T)
-            clusterer = AgglomerativeClustering(n_clusters=cluster, linkage='ward',
-                                                connectivity=connectivity)
-        elif cluster_type == 'meanShift':
-            # estimate bandwidth for mean shift
-            bandwidth = cluster.estimate_bandwidth(dataframe, quantile=0.3)
-            clusterer = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
-        else:
-            raise "Unknown clustering algorithm type"
+        clusterer = utils.get_model_obj(cluster_type)
         # Create a subplot with 1 row and 2 columns
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.set_size_inches(18, 7)

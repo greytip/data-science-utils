@@ -8,9 +8,10 @@ def is_type(df, baseType):
 
 def calculate_anova(df, targetCol, sourceCol):
     from statsmodels.formula.api import ols
-    lm = ols('conformity ~ C(%s, Sum)*C(%s, Sum)'% (targetCol, sourceCol),
+    from statsmodels.stats.anova import anova_lm
+    lm = ols('%s ~ C(%s, Sum)'% (targetCol, sourceCol),
             data=df).fit()
-    table = sm.stats.anova_lm(lm, typ=2)
+    table = anova_lm(lm, typ=2)
     return table
 
 def is_float(df):
@@ -133,6 +134,61 @@ def get_model_obj(modelType, **kwargs):
         lgbm_bc = GBMClassifier(metric='binary_error', min_data_in_leaf=1)
         return lgbm_bc
 
+    # Clustering models
+    elif cluster_type == 'KMeans':
+        assert n_clusters, "Number of clusters argument mandatory"
+        cluster_callable = KMeans
+        # seed of 10 for reproducibility.
+        clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
+        return clusterer
+
+    elif cluster_type ==  'dbscan':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+        cluster_callable = DBSCAN
+        clusterer = cluster_callable(eps=0.5)
+        return clusterer
+
+    elif cluster_type == 'affinity_prop':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+        clusterer = AffinityPropagation(damping=.9, preference=-200)
+        return clusterer
+    elif cluster_type == 'spectral':
+        assert n_clusters, "Number of clusters argument mandatory"
+        clusterer = SpectralClustering(n_clusters=n_clusters,
+                                              eigen_solver='arpack',
+                                              affinity="nearest_neighbors")
+        return clusterer
+    elif cluster_type == 'birch':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+        clusterer = Birch(n_clusters=2)
+        return clusterer
+
+    elif cluster_type == 'agglomerativeCluster':
+        # connectivity matrix for structured Ward
+        connectivity = kneighbors_graph(dataframe, n_neighbors=10, include_self=False)
+        # make connectivity symmetric
+        connectivity = 0.5 * (connectivity + connectivity.T)
+        clusterer = AgglomerativeClustering(n_clusters=cluster, linkage='ward',
+                                            connectivity=connectivity)
+        return clusterer
+
+    elif cluster_type == 'meanShift':
+        # estimate bandwidth for mean shift
+        bandwidth = cluster.estimate_bandwidth(dataframe, quantile=0.3)
+        clusterer = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
+        return clusterer
+
+    elif cluster_type == 'gmm':
+        from sklearn import mixture
+        gmm = mixture.GaussianMixture(n_components=5, covariance_type='full')
+        return gmm
+
+    elif cluster_type == 'dgmm':
+        from sklearn import mixture
+        dgmm =  mixture.BayesianGaussianMixture(n_components=5,
+                                                        covariance_type='full')
+        return dgmm
+
     else:
-        raise ''
+        raise 'Unknown model type: see utils.py for available'
 
