@@ -15,3 +15,6 @@
     	* analyze TODO: add grouped violinplots by categorical variables too.
 	* Add a separate grid search function to grid search a data set with the given
 	  model.(wrapper around sklearn model_selection's grid search)
+	* Add Gaussian Mixture Model to clustering models
+	* Add two templates, one analyze, one clusters, and one the regular predictions models
+
