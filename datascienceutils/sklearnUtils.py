@@ -113,7 +113,7 @@ def load_model(filename, model_type=None):
         model = joblib.load(os.path.join(foldername, filename))
         names = filename.split('_')
     names.insert(1, 'params')
-    with open(os.path.join(foldername, '_'.join(names)), 'r') as fd:
+    with open(os.path.join(foldername, '_'.join(names)) + '.json', 'r') as fd:
         params = json.load(fd)
     return model, params
 

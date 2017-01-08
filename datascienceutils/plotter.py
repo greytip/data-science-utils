@@ -31,6 +31,14 @@ def genColors(n, ptype='magma'):
     else:
         return viridis(n)
 
+def show_tree_model(model):
+    from sklearn import tree
+    #assert isinstance(model, tree.DecisionTreeClassifier)
+    import pydotplus
+    dot_data = tree.export_graphviz(model, out_file=None)
+    graph = pydotplus.graph_from_dot_data(dot_data)
+    show(graph)
+
 def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwargs):
     if not title:
         title = "%s Vs %s" %(xcol, ycol)

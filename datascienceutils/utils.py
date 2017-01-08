@@ -9,7 +9,7 @@ def is_type(df, baseType):
 def calculate_anova(df, targetCol, sourceCol):
     from statsmodels.formula.api import ols
     from statsmodels.stats.anova import anova_lm
-    lm = ols('%s ~ C(%s, Sum)'% (targetCol, sourceCol),
+    lm = ols('%s ~ C(%s, Sum) + c'% (targetCol, sourceCol),
             data=df).fit()
     table = anova_lm(lm, typ=2)
     return table
@@ -135,35 +135,35 @@ def get_model_obj(modelType, **kwargs):
         return lgbm_bc
 
     # Clustering models
-    elif cluster_type == 'KMeans':
+    elif modelType == 'KMeans':
         assert n_clusters, "Number of clusters argument mandatory"
         cluster_callable = KMeans
         # seed of 10 for reproducibility.
         clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
         return clusterer
 
-    elif cluster_type ==  'dbscan':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+    elif modelType ==  'dbscan':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
         cluster_callable = DBSCAN
         clusterer = cluster_callable(eps=0.5)
         return clusterer
 
-    elif cluster_type == 'affinity_prop':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+    elif modelType == 'affinity_prop':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
         clusterer = AffinityPropagation(damping=.9, preference=-200)
         return clusterer
-    elif cluster_type == 'spectral':
+    elif modelType == 'spectral':
         assert n_clusters, "Number of clusters argument mandatory"
         clusterer = SpectralClustering(n_clusters=n_clusters,
                                               eigen_solver='arpack',
                                               affinity="nearest_neighbors")
         return clusterer
-    elif cluster_type == 'birch':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
+    elif modelType == 'birch':
+        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
         clusterer = Birch(n_clusters=2)
         return clusterer
 
-    elif cluster_type == 'agglomerativeCluster':
+    elif modelType == 'agglomerativeCluster':
         # connectivity matrix for structured Ward
         connectivity = kneighbors_graph(dataframe, n_neighbors=10, include_self=False)
         # make connectivity symmetric
@@ -172,18 +172,18 @@ def get_model_obj(modelType, **kwargs):
                                             connectivity=connectivity)
         return clusterer
 
-    elif cluster_type == 'meanShift':
+    elif modelType == 'meanShift':
         # estimate bandwidth for mean shift
         bandwidth = cluster.estimate_bandwidth(dataframe, quantile=0.3)
         clusterer = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
         return clusterer
 
-    elif cluster_type == 'gmm':
+    elif modelType == 'gmm':
         from sklearn import mixture
         gmm = mixture.GaussianMixture(n_components=5, covariance_type='full')
         return gmm
 
-    elif cluster_type == 'dgmm':
+    elif modelType == 'dgmm':
         from sklearn import mixture
         dgmm =  mixture.BayesianGaussianMixture(n_components=5,
                                                         covariance_type='full')

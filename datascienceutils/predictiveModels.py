@@ -7,6 +7,7 @@ from sklearn import model_selection, metrics
 
 # Custom utils
 from .utils import get_model_obj
+
 def cross_val_train(dataframe, target, modelType, **kwargs):
     cv = kwargs.pop('cv',None)
     model = get_model_obj(modelType, **kwargs)
