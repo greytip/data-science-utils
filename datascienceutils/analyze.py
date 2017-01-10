@@ -109,7 +109,6 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     """
     from . import predictiveModels as pm
 
-    import matplotlib.pyplot as plt
     import numpy as np
 
     # this is the quantitative/hard version of teh above
@@ -160,16 +159,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
     if 'stationarity' in kwargs:
-        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
+        plot = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity,
                                   **kwargs.get('stationarity'))
     else:
-        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
+        plot = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
                                   title=plot_title,
                                   skip_stationarity=skip_stationarity
                                     )
-    show(plt)
+    show(plot)
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
             tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
@@ -194,7 +193,6 @@ def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
     from sklearn.metrics import silhouette_samples, silhouette_score
 
-    import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import numpy as np
     import time
@@ -236,7 +234,6 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
                         Birch, AffinityPropagation, AgglomerativeClustering
     from sklearn.metrics import silhouette_samples, silhouette_score
 
-    import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import numpy as np
     import collections
