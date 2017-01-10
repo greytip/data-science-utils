@@ -287,7 +287,7 @@ def heatmap(heatMapDF,xlabel, ylabel, value_label,
     return hm
 
 def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
-                xlabel=None, ylabel=None, group=None, plttitle=None):
+                xlabel=None, ylabel=None, group=None, plttitle=None, **kwargs):
     p = figure(width=width, height=height)
     from bokeh.charts import Scatter
 
@@ -297,7 +297,7 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
         ylabel = ycol
 
     if not group:
-        p.circle(scatterDF[xcol], scatterDF[ycol], size=5)
+        p.circle(scatterDF[xcol], scatterDF[ycol], size=5, **kwargs)
     else:
         groups = list(scatterDf[group].unique())
         colors = genColors(len(groups))

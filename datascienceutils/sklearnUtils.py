@@ -12,7 +12,7 @@ from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer, LabelBinari
 
 from . import settings
 
-def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
+def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScaler'):
     """
     Basically converts floating point or integer valued columns to fit into the range of 0 to 1
     """

@@ -1,4 +1,8 @@
 import os
+import logging
+
+from sklearn.cluster import KMeans, SpectralClustering, DBSCAN, MeanShift,\
+                            Birch, AffinityPropagation, AgglomerativeClustering
 # Type checkers taken from here. http://stackoverflow.com/questions/25039626/find-numeric-columns-in-pandas-python
 def is_type(df, baseType):
     import numpy as np
@@ -32,7 +36,7 @@ def chunks(combos, size=9):
 
 # Sigh lightgbm insist this is the only wa
 os.environ['LIGHTGBM_EXEC'] = os.path.join(os.getenv("HOME"), 'bin', 'lightgbm')
-def get_model_obj(modelType, **kwargs):
+def get_model_obj(modelType, n_clusters=None, **kwargs):
     if modelType == 'knn':
         from sklearn.neighbors import KNeighborsClassifier
         # 6 seems to give the best trade-off between accuracy and precision
@@ -143,13 +147,15 @@ def get_model_obj(modelType, **kwargs):
         return clusterer
 
     elif modelType ==  'dbscan':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
+        if not n_clusters:
+           logging.warn("Number of clusters irrelevant for cluster type : %s"%(modelType))
         cluster_callable = DBSCAN
         clusterer = cluster_callable(eps=0.5)
         return clusterer
 
     elif modelType == 'affinity_prop':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
+        if not  n_clusters:
+            logging.warn("Number of clusters irrelevant for cluster type : %s"%(modelType))
         clusterer = AffinityPropagation(damping=.9, preference=-200)
         return clusterer
     elif modelType == 'spectral':
@@ -159,7 +165,8 @@ def get_model_obj(modelType, **kwargs):
                                               affinity="nearest_neighbors")
         return clusterer
     elif modelType == 'birch':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(modelType)
+        if not n_clusters:
+           logging.warn("Number of clusters irrelevant for cluster type : %s"%(modelType))
         clusterer = Birch(n_clusters=2)
         return clusterer
 

@@ -25,5 +25,5 @@
 
 	* Add Gaussian Mixture Model to clustering models
 
-	* Add two templates, one analyze, one clusters, and one the regular predictions models
+	* Add factor_analyze function to analyze.py(probably something like PCA or the likes)
 
