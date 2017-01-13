@@ -68,14 +68,43 @@ def get_model_obj(modelType, n_clusters=None, **kwargs):
         svc = SVC(random_state=0, probability=True, **kwargs)
         return svc
 
-    elif modelType == 'linearRegression':
+    elif modelType == 'LinearRegression':
         #assert column, "Column name required for building a linear model"
         #assert dataframe[column].shape == target.shape
         from sklearn import linear_model
         l_reg = linear_model.LinearRegression(**kwargs)
         return l_reg
 
-    elif modelType == 'logisticRegression':
+    elif modelType == 'RidgeRegression':
+        from sklearn.linear_model import Ridge
+        if not kwargs:
+            kwargs = {'alpha': 0.5}
+        ridge_reg = Ridge(**kwargs)
+        return ridge_reg
+
+    elif modelType == 'RidgeRegressionCV':
+        from sklearn import linear_model
+        if not kwargs:
+            kwargs = {'alphas': [0.1, 1.0, 10.0] }
+        ridge_cv_reg = linear_model.RidgeCV(**kwargs)
+        return ridge_cv_reg
+
+    elif modelType == 'LassoRegression':
+        from sklearn import linear_model
+        if not kwargs:
+            kwargs = {'alpha': 0.1}
+        lasso_reg = linear_model.Lasso(**kwargs)
+        return lasso_reg
+
+    elif modelType == 'ElasticNetRegression':
+        from sklearn.metrics import r2_score
+        from sklearn import linear_model
+        if not kwargs:
+            kwargs = {'alpha': 0.1, 'l1_ratio': 0.7}
+        enet_reg = linear_model.ElasticNet(**kwargs)
+        return enet_reg
+
+    elif modelType == 'LogisticRegression':
         from sklearn.linear_model import LogisticRegression
         log_reg = LogisticRegression(random_state=123, **kwargs)
         return log_reg

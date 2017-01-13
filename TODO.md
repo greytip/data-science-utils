@@ -1,6 +1,6 @@
 ## TODO
-	* Refactor out matplotlib dependencies present in clusteringModels and predictiveModels
-	  modules, replacing with calls to the plotter module(which wraps bokeh and seaborn)
+	* ~~Refactor out matplotlib dependencies present in clusteringModels and predictiveModels
+	  modules, replacing with calls to the plotter module(which wraps bokeh and seaborn)~~
 
 	* Add a dask/airflow/luigi/pinball support for training models with different samples on
 	  distributed systems.
@@ -18,7 +18,7 @@
 
     	* analyze TODO: May be add a way to plot joint distributions of two variables?
 
-    	* analyze TODO: add grouped violinplots by categorical variables too.
+    	* ~~analyze TODO: add grouped violinplots by categorical variables too.~~
 
 	* Add a separate grid search function to grid search a data set with the given
 	  model.(wrapper around sklearn model_selection's grid search)

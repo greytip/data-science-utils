@@ -117,8 +117,13 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     #   Additionally plot the fitted y and the correct y in different colours against the same x
     new_df = df[[col1, col2]].copy(deep=True)
     target = new_df[col2]
-    models = [  pm.train(new_df, target, column=col1, modelType='linearRegression'),
-            pm.train(new_df, target, column=col1, modelType='logarithmicRegression'),
+    models = [
+            pm.train(new_df, target, column=col1, modelType='LinearRegression'),
+            pm.train(new_df, target, column=col1, modelType='RidgeRegression'),
+            pm.train(new_df, target, column=col1, modelType='RidgeRegressionCV'),
+            pm.train(new_df, target, column=col1, modelType='LassoRegression'),
+            pm.train(new_df, target, column=col1, modelType='ElasticNetRegression'),
+            #pm.train(new_df, target, column=col1, modelType='logarithmicRegression'),
             ]
     plots = list()
     for model in models:
