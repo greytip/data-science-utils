@@ -109,6 +109,11 @@ def get_model_obj(modelType, n_clusters=None, **kwargs):
         log_reg = LogisticRegression(random_state=123, **kwargs)
         return log_reg
 
+    elif modelType == 'RANSACRegression':
+        from sklearn.linear_model import LinearRegression, RANSACRegressor
+        ransac_model = RANSACRegressor(LinearRegression())
+        return ransac_model
+
     elif modelType == 'kde':
          from sklearn.neighbors.kde import KernelDensity
          kde = KernelDensity(kernel='gaussian', bandwidth=0.2, **kwargs)
