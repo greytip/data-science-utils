@@ -29,6 +29,9 @@ scikit-learn
 scipy
 scikit-image
 
+#Non-linear correlation measures
+ace
+
 #Xtreme Gradient Boosting
 xgboost
 

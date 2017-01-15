@@ -18,7 +18,7 @@
 
     	* analyze TODO: May be add a way to plot joint distributions of two variables?
 
-    	* ~~analyze TODO: add grouped violinplots by categorical variables too.
+    	* ~~analyze TODO: add grouped violinplots by categorical variables too.~~
 
 	* Add a separate grid search function to grid search a data set with the given
 	  model.(wrapper around sklearn model_selection's grid search)
@@ -31,3 +31,8 @@
 	  http://scikit-learn.org/stable/auto_examples/linear_model/plot_lasso_and_elasticnet.html#sphx-glr-auto-examples-linear-model-plot-lasso-and-elasticnet-py)
 	  or somethin else
 
+	* Add a way to check for non-linear correlations(aka ace algorithm)
+
+	* Implement the trellis plots for correlation analyze (when there's categories)
+
+	* Add support for [RANSAC](https://en.wikipedia.org/wiki/Random_sample_consensus)

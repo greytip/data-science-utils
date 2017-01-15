@@ -34,7 +34,8 @@ def dist_analyze(df, column=None, categories=[]):
     else:
         plotter.show(plotter.sb_violinplot(df[column], inner='box'))
 
-def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, trellis=False):
+def correlation_analyze(df, exclude_columns = [], categories=[],
+                        measures=None, trellis=False, non_linear=False):
     """
     Plot scatter plots of all combinations of numerical columns.
     If categorise and measures are passed, plot heatmap of combination of categories by measure.
@@ -44,8 +45,8 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
         categories: list of categorical variable names
         measures: List of measures to plot heatmap of categories
         trellis: Plot trellis type plots for the categories only valid if categories is passed
-                (inspired by this:
-                http://github.com/anandjeyahar/statistical-analysis-python-tutorial/3.%20Plotting%20and%20Visualization.ipynb)
+        non_linear: Use the python ace module to calculate non-linear correlations too.(Warning can
+        be very slow)
     """
     columns = set(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
@@ -59,6 +60,15 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
     for combo in combos:
         u,v = combo
         plots.append(plotter.scatterplot(df, u, v))
+        if non_linear:
+            import ace
+            model = ace.model.Model()
+            model.build_model_from_xy(df[u], df[v])
+
+            ace.ace.plot_transforms(model.ace, fname = '%s_%s_ace_plot.pdf'%(u, v))
+            myace.ace.write_transforms_to_file(fname = os.path.join(settings.MODELS_BASE_PATH,
+                                                                    '%s_%s_ace_transform.txt'%(u,v)))
+
 
     print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
@@ -95,6 +105,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
         plotter.show(hmGrid)
         if trellis:
             trellisPlots = list()
+            #TODO implement this
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
     # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance

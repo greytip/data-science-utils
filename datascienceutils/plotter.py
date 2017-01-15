@@ -16,6 +16,24 @@ import itertools
 # Custom imports
 from . import utils
 
+# Axis settings for Bokeh plots
+AXIS_FORMATS = dict(
+    minor_tick_in=None,
+    minor_tick_out=None,
+    major_tick_in=None,
+    major_label_text_font_size="10pt",
+    major_label_text_font_style="normal",
+    axis_label_text_font_size="10pt",
+
+    axis_line_color='#AAAAAA',
+    major_tick_line_color='#AAAAAA',
+    major_label_text_color='#666666',
+
+    major_tick_line_cap="round",
+    axis_line_cap="round",
+    axis_line_width=1,
+    major_tick_line_width=1,)
+
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
 
 def genColors(n, ptype='magma'):
@@ -242,23 +260,6 @@ class BokehTwinLinePlot(object):
         max_y_range = max(plot_data_y)
         return min_y_range, max_y_range
 
-# Axis settings for Bokeh plots
-AXIS_FORMATS = dict(
-    minor_tick_in=None,
-    minor_tick_out=None,
-    major_tick_in=None,
-    major_label_text_font_size="10pt",
-    major_label_text_font_style="normal",
-    axis_label_text_font_size="10pt",
-
-    axis_line_color='#AAAAAA',
-    major_tick_line_color='#AAAAAA',
-    major_label_text_color='#666666',
-
-    major_tick_line_cap="round",
-    axis_line_cap="round",
-    axis_line_width=1,
-    major_tick_line_width=1,)
 
 def histogram(histDF,values, **kwargs):
     from bokeh.charts import Histogram
