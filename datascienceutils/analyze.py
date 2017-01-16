@@ -63,7 +63,7 @@ def correlation_analyze(df, exclude_columns = [], categories=[],
         if non_linear:
             import ace
             model = ace.model.Model()
-            model.build_model_from_xy(df[u], df[v])
+            model.build_model_from_xy([list(df[u])], [list(df[v]])
 
             ace.ace.plot_transforms(model.ace, fname = '%s_%s_ace_plot.pdf'%(u, v))
             myace.ace.write_transforms_to_file(fname = os.path.join(settings.MODELS_BASE_PATH,
