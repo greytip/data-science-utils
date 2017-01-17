@@ -35,18 +35,17 @@ def dist_analyze(df, column=None, categories=[]):
         plotter.show(plotter.sb_violinplot(df[column], inner='box'))
 
 def correlation_analyze(df, exclude_columns = [], categories=[],
-                        measures=None, trellis=False, non_linear=False):
+                        measures=None, trellis=False):
     """
     Plot scatter plots of all combinations of numerical columns.
-    If categorise and measures are passed, plot heatmap of combination of categories by measure.
+    If categories and measures are passed, plot heatmap of combination of categories by measure.
+
     @params:
         df: Dataframe table data.
         exclude_columns: Columns to be excluded/ignored
         categories: list of categorical variable names
         measures: List of measures to plot heatmap of categories
         trellis: Plot trellis type plots for the categories only valid if categories is passed
-        non_linear: Use the python ace module to calculate non-linear correlations too.(Warning can
-        be very slow)
     """
     columns = set(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
@@ -57,18 +56,11 @@ def correlation_analyze(df, exclude_columns = [], categories=[],
     numericalColumns = set(df.select_dtypes(include=[np.number]).columns).intersection(columns)
     combos = list(itertools.combinations(numericalColumns, 2))
     plots = []
+
+
     for combo in combos:
         u,v = combo
         plots.append(plotter.scatterplot(df, u, v))
-        if non_linear:
-            import ace
-            model = ace.model.Model()
-            model.build_model_from_xy([list(df[u])], [list(df[v]])
-
-            ace.ace.plot_transforms(model.ace, fname = '%s_%s_ace_plot.pdf'%(u, v))
-            myace.ace.write_transforms_to_file(fname = os.path.join(settings.MODELS_BASE_PATH,
-                                                                    '%s_%s_ace_transform.txt'%(u,v)))
-
 
     print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
@@ -112,9 +104,14 @@ def correlation_analyze(df, exclude_columns = [], categories=[],
     print("# Pandas co-variance coefficients matrix")
     print(df.cov())
 
-def regression_analyze(df, col1, col2, trainsize=0.8):
+def regression_analyze(df, col1, col2, trainsize=0.8, non_linear=False):
     """
     Plot regressed data vs original data for the passed columns.
+    @params:
+        col1: x column,
+        col2: y column
+        non_linear: Use the python ace module to calculate non-linear correlations too.(Warning can
+        be very slow)
     """
     from . import predictiveModels as pm
 
@@ -126,6 +123,17 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     #         c, logistic function
     #         d, parabolic function??
     #   Additionally plot the fitted y and the correct y in different colours against the same x
+
+    import pdb; pdb.set_trace()
+    if non_linear:
+        plots = list()
+        import ace
+        model = ace.model.Model()
+        model.build_model_from_xy([df[col1].as_matrix()], [df[col2].as_matrix()])
+
+        print(" # Ace Models btw numerical cols")
+        plot = plotter.lineplot(df[[col1, col2]], col1, col2)
+        plotter.show(plot)
     new_df = df[[col1, col2]].copy(deep=True)
     target = new_df[col2]
     models = [
@@ -139,7 +147,7 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     plots = list()
     for model in models:
         scatter = plotter.scatterplot(new_df, col1, col2)
-        source = new_df[col1].as_matrix().reshape(-1,1)
+        source = new_df[col1].as_matrix()
         flatSrc = [item for sublist in source for item in sublist]
         predicted = list(model.predict(source))
         scatter.line(flatSrc,
@@ -149,7 +157,6 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
         plotter.show(scatter)
         print("Regression Score")
         print(model.score(source, new_df[col2].as_matrix().reshape(-1,1)))
-
     pass
 
 def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min',
@@ -304,7 +311,6 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         plt.suptitle(("Silhouette analysis for %s clustering on sample data "
                         "with clusters = %d" % (cluster_type, cluster)),
                         fontsize=14, fontweight='bold')
-
         plt.show()
 
     plotter.lineplot(cluster_scores_df, xcol='cluster_size', ycol='silhouette_score')
