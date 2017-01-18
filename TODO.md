@@ -36,3 +36,5 @@
 	* Implement the trellis plots for correlation analyze (when there's categories)
 
 	* Add support for [RANSAC](https://en.wikipedia.org/wiki/Random_sample_consensus)
+
+	* Setup python sphinx and add proper documentation for all classes and functions
