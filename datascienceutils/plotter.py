@@ -86,6 +86,17 @@ def show_tree_model(model, model_type='tree'):
             graph_plots.append(show_image(io.imread(fout.name)))
         grid = gridplot(list(utils.chunks(graph_plots, size=3)))
         show(grid)
+        os.remove(dot_fname)
+    else:
+        #It must be xgboost
+        import xgboost
+        xgboost.to_graphviz(model)
+        fout = tempfile.NamedTemporaryFile(suffix='.png')
+        dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+        dot_data = tree.export_graphviz(tree_model, out_file=dot_fname)
+        os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+        show(show_image(io.imread(fout.name)))
+        os.remove(dot_fname)
 
 def show_model_interpretation(model, model_type='randomforest'):
     #TODO: Use lime
