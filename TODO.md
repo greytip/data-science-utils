@@ -38,3 +38,6 @@
 	* Add support for [RANSAC](https://en.wikipedia.org/wiki/Random_sample_consensus)
 
 	* Setup python sphinx and add proper documentation for all classes and functions
+
+	* Create a function to take dataframe, run tree/randomforest, pick out best tree, create a
+	  neural network based on the tree, and return it.. (The user can then train it).

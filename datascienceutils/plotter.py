@@ -1,5 +1,6 @@
 # Standard and External lib imports
 from bokeh.mpl import to_bokeh
+from bokeh.layouts import gridplot
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
@@ -10,6 +11,7 @@ from math import ceil
 from numpy import pi as PI
 
 import operator
+import os
 import itertools
 
 #TODO: Ugh.. this file/module needs a cleanup
@@ -49,13 +51,46 @@ def genColors(n, ptype='magma'):
     else:
         return viridis(n)
 
-def show_tree_model(model):
+def show_image(image):
+    from bokeh.plotting import figure
+
+    p = figure(x_range=(0, 10), y_range=(0, 10))
+    #if image.ndim > 2:
+    #    if image.shape[2] == 3:
+    #        img = np.dstack([image, np.ones(img.shape[:2], np.uint8) * 255])
+    #    img = np.squeeze(img.view(np.uint32))
+    p.image(image=[image], x=0, y=0, dw=10, dh=10, palette='Spectral11')
+    return p
+
+def show_tree_model(model, model_type='tree'):
+    assert model_type in ['tree', 'randomforest', 'xgboost']
     from sklearn import tree
-    #assert isinstance(model, tree.DecisionTreeClassifier)
     import pydotplus
-    dot_data = tree.export_graphviz(model, out_file=None)
-    graph = pydotplus.graph_from_dot_data(dot_data)
-    show(graph)
+    import tempfile
+    from skimage import io
+    #assert isinstance(model, tree.DecisionTreeClassifier)
+    if model_type == 'tree':
+        fout = tempfile.NamedTemporaryFile(suffix='.png')
+        dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+        dot_data = tree.export_graphviz(model, out_file=dot_fname)
+        os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+        show(show_image(io.imread(fout.name)))
+        os.remove(dot_fname)
+    elif model_type == 'randomforest':
+        graph_plots = list()
+        for tree_model in model.estimators_:
+            fout = tempfile.NamedTemporaryFile(suffix='.png')
+            dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+            dot_data = tree.export_graphviz(tree_model, out_file=dot_fname)
+            os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+            graph_plots.append(show_image(io.imread(fout.name)))
+        grid = gridplot(list(utils.chunks(graph_plots, size=3)))
+        show(grid)
+
+def show_model_interpretation(model, model_type='randomforest'):
+    #TODO: Use lime
+    import lime
+    pass
 
 def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwargs):
     if not title:
@@ -72,16 +107,6 @@ def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwa
     fig.legend.location = "top_left"
     return fig
 
-def show_image(image):
-    from bokeh.plotting import figure
-
-    p = figure(x_range=(0, 10), y_range=(0, 10))
-    #if image.ndim > 2:
-    #    if image.shape[2] == 3:
-    #        img = np.dstack([image, np.ones(img.shape[:2], np.uint8) * 255])
-    #    img = np.squeeze(img.view(np.uint32))
-    p.image(image=[image], x=0, y=0, dw=10, dh=10, palette='Spectral11')
-    return p
 
 def timestamp(datetimeObj):
     timestamp = (datetimeObj - datetime(1970, 1, 1)).total_seconds()
