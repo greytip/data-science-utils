@@ -88,7 +88,7 @@ def dump_model(model, filename, model_params):
         json.dump(model_params, params_file)
 
     joblib.dump(model, os.path.join(settings.MODELS_BASE_PATH,
-                                    model_params['id'] + '_' + filename), compress=('lzma', 3))
+                                    model_params['id'] + '_' + filename + '.pkl'), compress=('lzma', 3))
 
 def load_model(filename, model_type=None):
     """
