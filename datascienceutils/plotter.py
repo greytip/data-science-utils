@@ -1,5 +1,6 @@
 # Standard and External lib imports
 from bokeh.mpl import to_bokeh
+from bokeh.layouts import gridplot
 from bokeh.plotting import figure, show, output_file, output_notebook, ColumnDataSource
 from bokeh.resources import CDN
 from bokeh.embed import components
@@ -10,11 +11,30 @@ from math import ceil
 from numpy import pi as PI
 
 import operator
+import os
 import itertools
 
 #TODO: Ugh.. this file/module needs a cleanup
 # Custom imports
 from . import utils
+
+# Axis settings for Bokeh plots
+AXIS_FORMATS = dict(
+    minor_tick_in=None,
+    minor_tick_out=None,
+    major_tick_in=None,
+    major_label_text_font_size="10pt",
+    major_label_text_font_style="normal",
+    axis_label_text_font_size="10pt",
+
+    axis_line_color='#AAAAAA',
+    major_tick_line_color='#AAAAAA',
+    major_label_text_color='#666666',
+
+    major_tick_line_cap="round",
+    axis_line_cap="round",
+    axis_line_width=1,
+    major_tick_line_width=1,)
 
 BOKEH_TOOLS = "resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
 
@@ -31,6 +51,58 @@ def genColors(n, ptype='magma'):
     else:
         return viridis(n)
 
+def show_image(image):
+    from bokeh.plotting import figure
+
+    p = figure(x_range=(0, 10), y_range=(0, 10))
+    #if image.ndim > 2:
+    #    if image.shape[2] == 3:
+    #        img = np.dstack([image, np.ones(img.shape[:2], np.uint8) * 255])
+    #    img = np.squeeze(img.view(np.uint32))
+    p.image(image=[image], x=0, y=0, dw=10, dh=10, palette='Spectral11')
+    return p
+
+def show_tree_model(model, model_type='tree'):
+    assert model_type in ['tree', 'randomforest', 'xgboost']
+    from sklearn import tree
+    import pydotplus
+    import tempfile
+    from skimage import io
+    #assert isinstance(model, tree.DecisionTreeClassifier)
+    if model_type == 'tree':
+        fout = tempfile.NamedTemporaryFile(suffix='.png')
+        dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+        dot_data = tree.export_graphviz(model, out_file=dot_fname)
+        os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+        show(show_image(io.imread(fout.name)))
+        os.remove(dot_fname)
+    elif model_type == 'randomforest':
+        graph_plots = list()
+        for tree_model in model.estimators_:
+            fout = tempfile.NamedTemporaryFile(suffix='.png')
+            dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+            dot_data = tree.export_graphviz(tree_model, out_file=dot_fname)
+            os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+            graph_plots.append(show_image(io.imread(fout.name)))
+        grid = gridplot(list(utils.chunks(graph_plots, size=3)))
+        show(grid)
+        os.remove(dot_fname)
+    else:
+        #It must be xgboost
+        import xgboost
+        xgboost.to_graphviz(model)
+        fout = tempfile.NamedTemporaryFile(suffix='.png')
+        dot_fname = '.'.join([fout.name.split('.')[0], 'dot'])
+        dot_data = tree.export_graphviz(tree_model, out_file=dot_fname)
+        os.system('dot -Tpng %s -o %s'%(dot_fname, fout.name))
+        show(show_image(io.imread(fout.name)))
+        os.remove(dot_fname)
+
+def show_model_interpretation(model, model_type='randomforest'):
+    #TODO: Use lime
+    import lime
+    pass
+
 def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwargs):
     if not title:
         title = "%s Vs %s" %(xcol, ycol)
@@ -46,16 +118,6 @@ def lineplot(df, xcol, ycol, fig=None, label=None, color=None, title=None, **kwa
     fig.legend.location = "top_left"
     return fig
 
-def show_image(image):
-    from bokeh.plotting import figure
-
-    p = figure(x_range=(0, 10), y_range=(0, 10))
-    #if image.ndim > 2:
-    #    if image.shape[2] == 3:
-    #        img = np.dstack([image, np.ones(img.shape[:2], np.uint8) * 255])
-    #    img = np.squeeze(img.view(np.uint32))
-    p.image(image=[image], x=0, y=0, dw=10, dh=10, palette='Spectral11')
-    return p
 
 def timestamp(datetimeObj):
     timestamp = (datetimeObj - datetime(1970, 1, 1)).total_seconds()
@@ -234,23 +296,6 @@ class BokehTwinLinePlot(object):
         max_y_range = max(plot_data_y)
         return min_y_range, max_y_range
 
-# Axis settings for Bokeh plots
-AXIS_FORMATS = dict(
-    minor_tick_in=None,
-    minor_tick_out=None,
-    major_tick_in=None,
-    major_label_text_font_size="10pt",
-    major_label_text_font_style="normal",
-    axis_label_text_font_size="10pt",
-
-    axis_line_color='#AAAAAA',
-    major_tick_line_color='#AAAAAA',
-    major_label_text_color='#666666',
-
-    major_tick_line_cap="round",
-    axis_line_cap="round",
-    axis_line_width=1,
-    major_tick_line_width=1,)
 
 def histogram(histDF,values, **kwargs):
     from bokeh.charts import Histogram
@@ -279,7 +324,7 @@ def heatmap(heatMapDF,xlabel, ylabel, value_label,
     return hm
 
 def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
-                xlabel=None, ylabel=None, group=None, plttitle=None):
+                xlabel=None, ylabel=None, group=None, plttitle=None, **kwargs):
     p = figure(width=width, height=height)
     from bokeh.charts import Scatter
 
@@ -289,15 +334,15 @@ def scatterplot(scatterDF, xcol, ycol, width=300, height=300,
         ylabel = ycol
 
     if not group:
-        p.circle(scatterDF[xcol], scatterDF[ycol], size=5)
+        p.circle(scatterDF[xcol], scatterDF[ycol], size=5, **kwargs)
     else:
         groups = list(scatterDf[group].unique())
         colors = genColors(len(groups))
         for group in groups:
             color = colors.pop()
             p.circle(scatterDf[xcol], scatterDf[ycol], size=5, color=color )
-    p.xaxis.axis_label = xcol
-    p.yaxis.axis_label = ycol
+    p.xaxis.axis_label = str(xcol)
+    p.yaxis.axis_label = str(ycol)
     return p
 
 def pieChart(df, column):

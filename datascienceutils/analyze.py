@@ -1,5 +1,4 @@
 # Standard and external libraries
-from bokeh.plotting import show
 from bokeh.layouts import gridplot
 
 import itertools
@@ -22,7 +21,7 @@ def dist_analyze(df, column=None, categories=[]):
         for column in catColumns:
             plots.append(plotter.pieChart(df, column))
         grid = gridplot(list(utils.chunks(plots, size=2)))
-        show(grid)
+        plotter.show(grid)
         if categories:
             # Plot Barplots of combination of category and numerical columns
             catNumCombos = set(itertools.product(numericalColumns, categories))
@@ -31,22 +30,22 @@ def dist_analyze(df, column=None, categories=[]):
                 barplots.append(plotter.barplot(df, each[1], each[0]))
             print("# Joint Distribution of Numerical vs Categorical Columns")
             grid = gridplot(list(utils.chunks(barplots, size=2)))
-            show(grid)
+            plotter.show(grid)
     else:
-        show(plotter.sb_violinplot(df[column], inner='box'))
+        plotter.show(plotter.sb_violinplot(df[column], inner='box'))
 
-def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, trellis=False):
+def correlation_analyze(df, exclude_columns = [], categories=[],
+                        measures=None, trellis=False):
     """
     Plot scatter plots of all combinations of numerical columns.
-    If categorise and measures are passed, plot heatmap of combination of categories by measure.
+    If categories and measures are passed, plot heatmap of combination of categories by measure.
+
     @params:
         df: Dataframe table data.
         exclude_columns: Columns to be excluded/ignored
         categories: list of categorical variable names
         measures: List of measures to plot heatmap of categories
         trellis: Plot trellis type plots for the categories only valid if categories is passed
-                (inspired by this:
-                http://github.com/anandjeyahar/statistical-analysis-python-tutorial/3.%20Plotting%20and%20Visualization.ipynb)
     """
     columns = set(filter(lambda x: x not in exclude_columns, df.columns))
     assert len(columns) > 1, "Too few columns"
@@ -57,13 +56,15 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
     numericalColumns = set(df.select_dtypes(include=[np.number]).columns).intersection(columns)
     combos = list(itertools.combinations(numericalColumns, 2))
     plots = []
+
+
     for combo in combos:
         u,v = combo
         plots.append(plotter.scatterplot(df, u, v))
 
     print("# Correlation btw Numerical Columns")
     grid = gridplot(list(utils.chunks(plots, size=2)))
-    show(grid)
+    plotter.show(grid)
 
     if (categories and measures):
         # Plot heatmaps of category-combos by measure value.
@@ -87,30 +88,33 @@ def correlation_analyze(df, exclude_columns = [], categories=[], measures=None, 
             # Plot heatmaps for measure across all combination of categories
             for combo in combos:
                 print("# Correlation btw Columns %s & %s by measure %s" % (combo[0],
-                                                                                combo[1],
-                                                                                meas))
-                heatmaps.append(plotter.heatmap(df, combo[0], combo[1],
-                                      meas, title="%s vs %s %s heatmap"%(combo[0],
-                                                                         combo[1],
-                                                                         meas)))
+                    combo[1],
+                    meas))
+                heatmaps.append(plotter.heatmap(df, combo[0], combo[1], meas,
+                                                title="%s vs %s %s heatmap"%(combo[0], combo[1], meas)
+                                                ))
         hmGrid = gridplot(list(utils.chunks(heatmaps, size=2)))
-        show(hmGrid)
+        plotter.show(hmGrid)
         if trellis:
             trellisPlots = list()
+            #TODO implement this
     print("# Pandas correlation coefficients matrix")
     print(df.corr())
     # Add co-variance matrix http://scikit-learn.org/stable/modules/covariance.html#covariance
     print("# Pandas co-variance coefficients matrix")
     print(df.cov())
 
-def regression_analyze(df, col1, col2, trainsize=0.8):
+def regression_analyze(df, col1, col2, trainsize=0.8, non_linear=False):
     """
     Plot regressed data vs original data for the passed columns.
+    @params:
+        col1: x column,
+        col2: y column
+        non_linear: Use the python ace module to calculate non-linear correlations too.(Warning can
+        be very slow)
     """
     from . import predictiveModels as pm
 
-    import matplotlib.pyplot as plt
-    import numpy as np
 
     # this is the quantitative/hard version of teh above
     #TODO: Simple  line plots of column variables, but for the y-axis, # Fit on
@@ -119,32 +123,47 @@ def regression_analyze(df, col1, col2, trainsize=0.8):
     #         c, logistic function
     #         d, parabolic function??
     #   Additionally plot the fitted y and the correct y in different colours against the same x
+
+    import pdb; pdb.set_trace()
+    if non_linear:
+        plots = list()
+        import ace
+        model = ace.model.Model()
+        model.build_model_from_xy([df[col1].as_matrix()], [df[col2].as_matrix()])
+
+        print(" # Ace Models btw numerical cols")
+        plot = plotter.lineplot(df[[col1, col2]], col1, col2)
+        plotter.show(plot)
     new_df = df[[col1, col2]].copy(deep=True)
     target = new_df[col2]
-    models = [  pm.train(new_df, target, column=col1, modelType='linearRegression'),
-                #pm.train(new_df, target, column=col1, modelType='logisticRegression'),
-              ]
+    models = [
+            pm.train(new_df, target, column=col1, modelType='LinearRegression'),
+            pm.train(new_df, target, column=col1, modelType='RidgeRegression'),
+            pm.train(new_df, target, column=col1, modelType='RidgeRegressionCV'),
+            pm.train(new_df, target, column=col1, modelType='LassoRegression'),
+            pm.train(new_df, target, column=col1, modelType='ElasticNetRegression'),
+            #pm.train(new_df, target, column=col1, modelType='logarithmicRegression'),
+            ]
     plots = list()
     for model in models:
         scatter = plotter.scatterplot(new_df, col1, col2)
-        source = new_df[col1].as_matrix().reshape(-1,1)
+        source = new_df[col1].as_matrix()
         flatSrc = [item for sublist in source for item in sublist]
         predicted = list(model.predict(source))
         scatter.line(flatSrc,
-                     predicted,
-                     line_color='red')
+                predicted,
+                line_color='red')
         plots.append(scatter)
-        show(scatter)
+        plotter.show(scatter)
         print("Regression Score")
         print(model.score(source, new_df[col2].as_matrix().reshape(-1,1)))
-
     pass
 
 def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min',
-                         plot_title = 'timeseries',
-                         skip_stationarity=False,
-                         skip_autocorrelation=False,
-                         skip_seasonal_decompose=False, **kwargs):
+        plot_title = 'timeseries',
+        skip_stationarity=False,
+        skip_autocorrelation=False,
+        skip_seasonal_decompose=False, **kwargs):
     """
     Plot time series, rolling mean, rolling std , autocorrelation plot, partial autocorrelation plot
     and seasonal decompose
@@ -160,16 +179,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
     # 3. ARIMA model of the times
     # 4. And other time-serie models like AR, etc..
     if 'stationarity' in kwargs:
-        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
-                                  title=plot_title,
-                                  skip_stationarity=skip_stationarity,
-                                  **kwargs.get('stationarity'))
+        plot = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
+                title=plot_title,
+                skip_stationarity=skip_stationarity,
+                **kwargs.get('stationarity'))
     else:
-        plt = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
-                                  title=plot_title,
-                                  skip_stationarity=skip_stationarity
-                                    )
-    show(plt)
+        plot = tsu.test_stationarity(ts, timeCol=timeCol, valueCol=valueCol,
+                title=plot_title,
+                skip_stationarity=skip_stationarity
+                )
+        plotter.show(plot)
     if not skip_autocorrelation:
         if 'autocorrelation' in kwargs:
             tsu.plot_autocorrelation(ts, valueCol=valueCol, **kwargs.get('autocorrelation')) # AR model
@@ -185,78 +204,16 @@ def time_series_analysis(df, timeCol='date', valueCol=None, timeInterval='30min'
         else:
             tsu.seasonal_decompose(ts)
 
-def cluster_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
-    """
-    Apply the given clustering method and plot scatter plot and center
-    """
-
-    # coloured area plots ??)
-    from sklearn.cluster import KMeans, DBSCAN, AffinityPropagation, SpectralClustering, Birch
-    from sklearn.metrics import silhouette_samples, silhouette_score
-
-    import matplotlib.pyplot as plt
-    import matplotlib.cm as cm
-    import numpy as np
-    import time
-
-    df_mat = dataframe.as_matrix()
-    if cluster_type == 'KMeans':
-        assert n_clusters, "Number of clusters argument mandatory"
-        cluster_callable = KMeans
-        # seed of 10 for reproducibility.
-        clusterer = cluster_callable(n_clusters=n_clusters, random_state=10)
-    elif cluster_type ==  'dbscan':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        cluster_callable = DBSCAN
-        clusterer = cluster_callable(eps=0.5)
-    elif cluster_type == 'affinity_prob':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        clusterer = AffinityPropagation(damping=.9, preference=-200)
-    elif cluster_type == 'spectral':
-        assert n_clusters, "Number of clusters argument mandatory"
-        clusterer = SpectralClustering(n_clusters=n_clusters,
-                                              eigen_solver='arpack',
-                                              affinity="nearest_neighbors")
-    elif cluster_type == 'birch':
-        assert not n_clusters, "Number of clusters irrelevant for cluster type : %s"%(cluster_type)
-        clusterer = Birch(n_clusters=2)
-    else:
-        raise "Unknown clustering algorithm type"
-    plt.figure(figsize=(2 + 3, 9.5))
-    colors = np.array([x for x in 'bgrcmykbgrcmykbgrcmykbgrcmyk'])
-    colors = np.hstack([colors] * 20)
-    #plt.subplots_adjust(left=.02, right=.98, bottom=.001, top=.96, wspace=.05,hspace=.01)
-    t0 = time.time()
-    clusterer.fit(df_mat)
-    t1 = time.time()
-    if hasattr(clusterer, 'labels_'):
-        y_pred = clusterer.labels_.astype(np.int)
-    else:
-        y_pred = clusterer.predict(df_mat)
-    dataframe['y_pred'] = y_pred
-    # plot
-    plt.title(cluster_type, size=18)
-    plt.scatter(df_mat[:, 0], df_mat[:, 1]) # color=colors[y_pred].tolist(), s=10)
-
-    if hasattr(clusterer, 'cluster_centers_'):
-        centers = clusterer.cluster_centers_
-        center_colors = colors[:len(centers)]
-        plt.scatter(centers[:, 0], centers[:, 1], s=100, c=center_colors)
-    plt.show()
-
 def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     """
     Plot silhouette analysis plot of given data and cluster type across different  cluster sizes
     """
     # Use clustering algorithms from here
     # http://scikit-learn.org/stable/modules/clustering.html#clustering
-    # And add a plot that visually shows the effectiveness of the clusters/clustering rule.(may be
+    # And add a plot that visually plotter.shows the effectiveness of the clusters/clustering rule.(may be
     # coloured area plots ??)
-    from sklearn.cluster import KMeans, SpectralClustering, DBSCAN, MeanShift, \
-                        Birch, AffinityPropagation, AgglomerativeClustering
     from sklearn.metrics import silhouette_samples, silhouette_score
 
-    import matplotlib.pyplot as plt
     import matplotlib.cm as cm
     import numpy as np
     import collections
@@ -270,35 +227,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
     #TODO: Add more clustering methods/types like say dbscan and others
 
     for j, cluster in enumerate(n_clusters):
-        if cluster_type == 'KMeans':
-            # seed of 10 for reproducibility.
-            clusterer = KMeans(n_clusters=cluster, random_state=10)
-        elif cluster_type == 'spectral':
-            clusterer = SpectralClustering(n_clusters=cluster,
-                                                  eigen_solver='arpack',
-                                                  affinity="nearest_neighbors")
-        elif cluster_type == 'dbscan':
-            clusterer = DBSCAN(eps=0.2)
-
-        elif cluster_type == 'birch':
-            clusterer = Birch(n_clusters=cluster)
-
-        elif cluster_type == 'affinityProp':
-            clusterer = AffinityPropagation(damping=0.9, preference=-200)
-
-        elif cluster_type == 'agglomerativeCluster':
-            # connectivity matrix for structured Ward
-            connectivity = kneighbors_graph(dataframe, n_neighbors=10, include_self=False)
-            # make connectivity symmetric
-            connectivity = 0.5 * (connectivity + connectivity.T)
-            clusterer = AgglomerativeClustering(n_clusters=cluster, linkage='ward',
-                                                connectivity=connectivity)
-        elif cluster_type == 'meanShift':
-            # estimate bandwidth for mean shift
-            bandwidth = cluster.estimate_bandwidth(dataframe, quantile=0.3)
-            clusterer = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
-        else:
-            raise "Unknown clustering algorithm type"
+        clusterer = utils.get_model_obj(cluster_type, n_clusters=cluster)
         # Create a subplot with 1 row and 2 columns
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.set_size_inches(18, 7)
@@ -318,7 +247,7 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         # The silhouette_score gives the average value for all the samples.
         # This gives a perspective into the density and separation of the formed
         # clusters
-        if cluster_labels > 1:
+        if len(cluster_labels) > 1:
             silhouette_avg = silhouette_score(dataframe, cluster_labels)
             cluster_scores_df.loc[j] = [cluster, silhouette_avg]
             print("For clusters =", cluster,
@@ -382,7 +311,6 @@ def silhouette_analyze(dataframe, cluster_type='KMeans', n_clusters=None):
         plt.suptitle(("Silhouette analysis for %s clustering on sample data "
                         "with clusters = %d" % (cluster_type, cluster)),
                         fontsize=14, fontweight='bold')
-
         plt.show()
 
     plotter.lineplot(cluster_scores_df, xcol='cluster_size', ycol='silhouette_score')

@@ -1,10 +1,18 @@
 import copy
+import fnmatch
+import numpy as np
+import os
+import pandas as pd
+import json
 
 from collections import defaultdict
 from sklearn.externals import joblib
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer, LabelBinarizer
 
-def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScalar'):
+
+from . import settings
+
+def feature_scale_or_normalize(dataframe, col_names, norm_type='StandardScaler'):
     """
     Basically converts floating point or integer valued columns to fit into the range of 0 to 1
     """
@@ -38,21 +46,76 @@ def feature_standardize(dataframe, col_names):
     return scale(dataframe[col_names])
 
 def binarize_labels(dataframe, column):
-    labels = dataframe[column].values
-    from sklearn import preprocessing
-    enc = preprocessing.LabelBinarizer()
-    binarized_labels = enc.fit_transform(labels)
-    dataframe.drop(column, axis=1, inplace=True)
-    return dataframe, binarized_labels
+    if dataframe[column].nunique() == 2:
+        enc = LabelBinarizer()
+        binarized_labels = enc.fit_transform([dataframe[column].tolist(), (dataframe[column].nunique(),)])
+    else:
+        # Ugh.. I just can't understand how this class is helpful.Rolling my own
+        labeled_samples = pd.factorize(dataframe[column])
+        #enc = MultiLabelBinarizer()
+        binarized_labels = list()
+        for each in labeled_samples[0]:
+            tmp = [0 for i in range(dataframe[column].nunique())]
+            tmp[each] = each
+            binarized_labels.append(tmp)
+        binarized_labels = np.asarray(binarized_labels)
+    return binarized_labels
 
-def dump_model(model, filename):
+def dump_model(model, filename, model_params):
+    """
+    @params:
+        @model: actual scikits-learn (or supported by sklearn.joblib) model file
+        @model_params: parameters used to build the model
+        @filename: Filename to store the model as.
+
+    @output:
+        Dumps the model and the parameters as separate files
+    """
+    import uuid
+    from sklearn.externals import joblib
+
     assert model, "Model required"
     assert filename, "Filename Required"
-    from sklearn.externals import joblib
-    joblib.dump(model, filename+ '.pkl')
+    assert model_params, "model parameters (dict required)"
+    assert model_params['model_type'], "model_type required in model_params"
 
-def load_model(filename):
-    return joblib.load(filename)
+    model_params.update({'filename': filename,
+                         'id': str(uuid.uuid4())})
+
+    with open(os.path.join(settings.MODELS_BASE_PATH,
+                            model_params['id'] + '_params_' + filename + '.json'),
+                      'w') as params_file:
+        json.dump(model_params, params_file)
+
+    joblib.dump(model, os.path.join(settings.MODELS_BASE_PATH,
+                                    model_params['id'] + '_' + filename + '.pkl'), compress=('lzma', 3))
+
+def load_model(filename, model_type=None):
+    """
+    @params:
+        @filename: Filename..
+        @model_type: Pass, if you can't find filename. we use regex on the settings.models_base_path to find matching
+                filenames and pick latest file for the model
+
+    @return:
+        @model: joblib.load(filename). basically the model
+        @params: The parameters the model  was stored with  if it was
+    """
+    foldername = settings.MODELS_BASE_PATH
+    if not filename:
+        assert model_type, 'model_type or filename mandatory'
+        relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + model_type + '*.pkl'), os.listdir(foldername)))
+        assert relevant_models, "no relevant models found"
+        relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
+        model = joblib.load(os.path.join(foldername, relevant_models[0]))
+        names = elevant_models[0].split('_')
+    else:
+        model = joblib.load(os.path.join(foldername, filename))
+        names = filename.split('_')
+    names.insert(1, 'params')
+    with open(os.path.join(foldername, '_'.join(names)) + '.json', 'r') as fd:
+        params = json.load(fd)
+    return model, params
 
 def load_latest_model(foldername, modelType='knn'):
     """
@@ -60,7 +123,6 @@ def load_latest_model(foldername, modelType='knn'):
     @modelType: can be overloaded to match any string. though the function surrounds a * after value
     """
     assert foldername, "Please pass in a foldername"
-    import os, fnmatch
     relevant_models = list(filter(lambda x: fnmatch.fnmatch(x, '*' + modelType + '*.pkl'), os.listdir(foldername)))
     assert relevant_models, "no relevant models found"
     relevant_models.sort(key=lambda x: os.stat(os.path.join(foldername, x)).st_mtime, reverse=True)
